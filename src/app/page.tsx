@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart,
@@ -94,40 +95,34 @@ const QA_STYLES = [
 /* ─── Story Timeline Data ─── */
 const STORY_TIMELINE = [
   { 
-    id: "isolation",
-    label: "The Problem", 
-    icon: Link2Off, 
-    title: "Isolated Campuses",
-    story: "You had a question. You searched. Nothing. Because the answer was sitting in a notebook in Feni, and you were in Sylhet.",
-    color: "text-accent",
-    rotate: "rotate-2"
+    id: "identity",
+    title: "TTC Exists. But No One Really Knows It.",
+    icon: Landmark, 
+    story: "B.Ed Honours is a real bachelor's degree. But ask anyone outside the teacher community — they'll just say 'oh, that's the teacher training place.' There's no single space to showcase what TTC truly is — its teachers, students, programmes, and achievements. TTC deserved a proper identity. It never had one.",
   },
   { 
-    id: "silence",
-    label: "The Silence", 
-    icon: MicOff, 
-    title: "Muted Voices",
-    story: "A math teacher in Ferozpur found a better way to explain geometry. But no one outside his classroom ever knew.",
-    color: "text-primary",
-    rotate: "-rotate-1"
+    id: "bridge",
+    title: "Teachers and Students — In the Same System, But Worlds Apart.",
+    icon: Users, 
+    story: "A teacher in Feni has no idea what a brilliant teacher in Dhaka is doing. A student finishing their first year has no way to reach a senior who already walked that path. The TTC community is scattered — and there was no bridge.",
   },
   { 
-    id: "gap",
-    label: "The Gap", 
-    icon: FileWarning, 
-    title: "Information Loss",
-    story: "The notice board was a jungle of fading ink and staples. By the time you saw the update, the moment had already passed.",
-    color: "text-violet-500",
-    rotate: "rotate-1"
+    id: "meaning",
+    title: "What Am I Even Doing Here?",
+    icon: Target, 
+    story: "Most TTC students enter without a clear picture of what this journey means or where it leads. No platform existed where they could ask real questions, share their confusion, explore ideas, or understand what it truly means to build a career as a TTCian.",
   },
   { 
-    id: "loss",
-    label: "The Loss", 
+    id: "information",
+    title: "The Notice Was There. You Just Missed It.",
+    icon: ClipboardList, 
+    story: "Important updates buried in group chats. Notice boards with faded ink. A new student trying to decide whether to enrol in B.Ed Honours — with nowhere reliable to look. Information existed, but it was never organized for the people who needed it most.",
+  },
+  { 
+    id: "knowledge",
+    title: "The Study Material Vanished With the Batch.",
     icon: Book, 
-    title: "Untold Stories",
-    story: "Batches came and batches went. Thousands of smiles, struggles, and successes — all vanished into thin air the day they moved out.",
-    color: "text-emerald-600",
-    rotate: "-rotate-2"
+    story: "A teacher shares a resource in class. A student needs it three months later — it's gone. Teachers re-share the same material batch after batch with no central home. Students scramble when it matters most. Knowledge existed — it just had nowhere to live.",
   },
 ];
 
@@ -599,60 +594,66 @@ export default function HomePage() {
               variants={itemVariants}
               className="mt-6 text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed font-medium"
             >
-              Before we were one network, we were 14 islands. This is the story of how that silence felt.
+              Every TTC student and teacher deserves better. Here&apos;s what we kept seeing — and couldn&apos;t ignore.
             </motion.p>
           </motion.div>
 
-          {/* Timeline Story Flow */}
-          <div className="relative">
-            {/* The Connecting Thread */}
-            <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-1 md:-translate-x-1/2 overflow-hidden pointer-events-none">
-              <div className="w-full h-full bg-gradient-to-b from-gray-100 via-accent/20 to-gray-100 dark:from-white/5 dark:via-accent/10 dark:to-white/5 border-l-2 border-dashed border-gray-200 dark:border-white/10" />
-            </div>
+          {/* New Problem Grid */}
+          <div className="space-y-12 sm:space-y-20">
+            {STORY_TIMELINE.map((problem, i) => {
+              const Icon = problem.icon;
+              return (
+                <div key={problem.id} className="relative group">
+                  {/* Background Number (Desktop Only) */}
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 -ml-12 hidden lg:block opacity-10 pointer-events-none">
+                     <span className="text-[140px] font-black text-[#F5B800] dark:text-amber-500 leading-none select-none">
+                        {i + 1}
+                     </span>
+                  </div>
 
-            <div className="space-y-24 md:space-y-40 relative z-10">
-              {STORY_TIMELINE.map((step, i) => {
-                const Icon = step.icon;
-                const isEven = i % 2 === 0;
-                return (
                   <motion.div
-                    key={step.id}
-                    initial={{ opacity: 0, x: isEven ? -50 : 50 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
-                    transition={{ duration: 0.8, delay: i * 0.1 }}
-                    className={`flex flex-col md:flex-row items-start md:items-center gap-8 ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'}`}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.7, delay: i * 0.1 }}
+                    className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
                   >
-                    {/* The Point/Anchor */}
-                    <div className="absolute left-8 md:left-1/2 w-4 h-4 rounded-full bg-white dark:bg-black border-4 border-accent md:-translate-x-1/2 z-20 shadow-[0_0_15px_rgba(230,57,70,0.5)]" />
+                    {/* Ghost Number / Spacer on the left for text alignment */}
+                    <div className="hidden lg:block lg:col-span-1" />
 
-                    {/* Content Block */}
-                    <div className={`flex-1 w-full pl-16 md:pl-0 ${isEven ? 'md:text-right md:pr-16' : 'md:text-left md:pl-16'}`}>
-                      <div className={`mb-6 flex ${isEven ? 'md:justify-end' : 'md:justify-start'}`}>
-                        <div className={`sticky-tag ${step.rotate} text-gray-900`}>
-                          {step.label}
-                        </div>
-                      </div>
+                    {/* Content Card */}
+                    <div className="lg:col-span-10">
+                       <div className={`p-8 sm:p-12 rounded-[2.5rem] relative overflow-hidden transition-all duration-500 hover:shadow-2xl hover:scale-[1.01] rotate-0 ${i % 2 === 0 ? 'lg:rotate-1' : 'lg:-rotate-1'}`}
+                            style={{ backgroundColor: '#FFF9C4' }}>
+                          
+                          {/* Decorative Tape Element */}
+                          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-10 bg-white/40 dark:bg-black/10 backdrop-blur-sm border-x border-black/5 rotate-2" />
 
-                      <div className={`flex items-center gap-4 mb-4 ${isEven ? 'md:justify-end' : 'md:justify-start'}`}>
-                        {!isEven && <div className={`${step.color} p-3 rounded-2xl bg-gray-50 dark:bg-white/5`}><Icon size={24} strokeWidth={1.5} /></div>}
-                        <h3 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none">
-                          {step.title}
-                        </h3>
-                        {isEven && <div className={`${step.color} p-3 rounded-2xl bg-gray-50 dark:bg-white/5`}><Icon size={24} strokeWidth={1.5} /></div>}
-                      </div>
-
-                      <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 font-hindi leading-relaxed max-w-lg ml-0 mr-auto md:ml-auto md:mr-0">
-                        {step.story}
-                      </p>
+                          <div className="flex flex-col md:flex-row gap-8 items-start md:items-center">
+                            <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-white dark:bg-black/5 flex items-center justify-center shadow-lg border border-black/5">
+                              <Icon size={32} className="text-accent" strokeWidth={1.5} />
+                            </div>
+                            
+                            <div className="flex-1">
+                              <h3 className="text-2xl sm:text-4xl font-black text-gray-900 leading-tight mb-4 font-caveat">
+                                {problem.title}
+                              </h3>
+                              <p className="text-lg sm:text-xl text-gray-700 leading-relaxed font-medium">
+                                {problem.story}
+                              </p>
+                            </div>
+                          </div>
+                       </div>
                     </div>
-
-                    {/* Mirror Placeholder for Asymmetry */}
-                    <div className="hidden md:block flex-1" />
                   </motion.div>
-                );
-              })}
-            </div>
+
+                  {/* Horizontal Separator */}
+                  {i < STORY_TIMELINE.length - 1 && (
+                    <div className="mt-12 sm:mt-20 w-full h-px bg-gradient-to-r from-transparent via-gray-100 dark:via-white/5 to-transparent" />
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           <motion.div
@@ -660,19 +661,17 @@ export default function HomePage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.5 }}
-            className="mt-32 pt-20 border-t border-dashed border-gray-200 dark:border-white/10 text-center relative"
+            className="mt-32 pt-20 border-t border-dashed border-gray-200 dark:border-white/10 text-center"
           >
-            {/* Resolution Moment */}
-            <div className="resolution-glow">
-              <p className="text-2xl sm:text-4xl lg:text-5xl font-black text-gray-900 dark:text-white max-w-4xl mx-auto leading-[1.1] tracking-tighter">
-                TTC Network was built to change that. <br className="hidden sm:block" />
-                As the <span className="text-primary dark:text-indigo-400 animate-variable-underline">digital home</span> every TTCian deserved but never had.
-              </p>
-            </div>
-            
-            <div className="mt-16 w-16 h-16 mx-auto rounded-full bg-accent/5 flex items-center justify-center animate-bounce">
-              <ChevronDown className="text-accent" />
-            </div>
+            <p className="text-xl sm:text-3xl font-bold text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed italic mb-12">
+              &quot;These weren&apos;t small inconveniences. They were walls. <br />
+              TTC Network was built to tear them down — one by one.&quot;
+            </p>
+
+            <Link href="/news-feed" className="inline-flex items-center gap-3 px-10 py-5 bg-primary text-white font-black rounded-full shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all text-lg group">
+              See How We&apos;re Solving It
+              <ArrowRight className="group-hover:translate-x-2 transition-transform" />
+            </Link>
           </motion.div>
         </div>
       </section>

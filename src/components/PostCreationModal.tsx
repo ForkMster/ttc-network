@@ -1,0 +1,336 @@
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, react-hooks/exhaustive-deps */
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+    X, Send, Link as LinkIcon, Globe, Lock, 
+    Sparkles, AlertTriangle, Loader2, ImageIcon, School
+} from "lucide-react";
+import { createPost, getMyClubs, type FirestoreClub } from "@/lib/firestore";
+import { uploadFile } from "@/lib/cloudinary";
+import { colleges } from "@/data/colleges";
+
+interface PostCreationModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    profile: any;
+}
+
+export default function PostCreationModal({ isOpen, onClose, profile }: PostCreationModalProps) {
+    const [eventName, setEventName] = useState("");
+    const [description, setDescription] = useState("");
+    const [shareLink, setShareLink] = useState("");
+    const [visibility, setVisibility] = useState<"public" | "campus">("public");
+    const [type, setType] = useState<"event" | "club">("event");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    const [linkPreview, setLinkPreview] = useState<any>(null);
+    const [isFetchingLink, setIsFetchingLink] = useState(false);
+
+    const [selectedClubId, setSelectedClubId] = useState("");
+    const [selectedClubName, setSelectedClubName] = useState("");
+    const [myClubs, setMyClubs] = useState<(FirestoreClub & {id: string})[]>([]);
+
+    // Thumbnail state
+    const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+    const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+    const thumbnailInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (!profile?.id || !profile?.collegeId) return;
+        getMyClubs(profile.id, profile.collegeId).then(setMyClubs).catch(console.error);
+    }, [profile]);
+
+    // Link preview effect
+    useEffect(() => {
+        if (!shareLink || !shareLink.startsWith('http')) {
+            setLinkPreview(null);
+            return;
+        }
+        const timer = setTimeout(async () => {
+            setIsFetchingLink(true);
+            try {
+                const res = await fetch(`/api/link-preview?url=${encodeURIComponent(shareLink)}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setLinkPreview(data);
+                }
+            } catch (err) {
+                console.error("Link preview failed:", err);
+            } finally {
+                setIsFetchingLink(false);
+            }
+        }, 800);
+        return () => clearTimeout(timer);
+    }, [shareLink]);
+
+    // Thumbnail file handler
+    const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+            alert("Image must be under 5MB");
+            return;
+        }
+        setThumbnailFile(file);
+        setThumbnailPreview(URL.createObjectURL(file));
+    };
+
+    const removeThumbnail = () => {
+        setThumbnailFile(null);
+        setThumbnailPreview(null);
+        if (thumbnailInputRef.current) thumbnailInputRef.current.value = "";
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!eventName.trim() || isSubmitting) return;
+
+        setIsSubmitting(true);
+        try {
+            // Upload thumbnail if selected
+            let thumbnailUrl = "";
+            if (thumbnailFile) {
+                const resultUrl = await uploadFile("thumbnails", thumbnailFile);
+                thumbnailUrl = resultUrl;
+            }
+
+            await createPost({
+                type,
+                eventName: eventName.trim(),
+                description: description.trim(),
+                shareLink: shareLink.trim() || "https://ttcnetwork.com",
+                visibility,
+                linkPreview: linkPreview || { title: eventName, description: description.slice(0, 100), thumbnail: "", domain: "ttcnetwork.com" },
+                collegeId: profile?.collegeId,
+                ...(thumbnailUrl ? { thumbnailUrl } : {}),
+                ...(type === "club" ? { clubName: selectedClubName } : {})
+            } as any);
+            
+            // Reset and close
+            setEventName("");
+            setDescription("");
+            setShareLink("");
+            removeThumbnail();
+            onClose();
+        } catch (err) {
+            console.error(err);
+            alert("Failed to share update. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-white dark:bg-[#1a1b23] w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/10 max-h-[90vh] overflow-y-auto"
+            >
+                <div className="p-6 sm:p-8">
+                    <div className="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter flex items-center gap-2">
+                                <Sparkles className="text-primary" /> Share Update
+                            </h2>
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Post to your campus community</p>
+                        </div>
+                        <button 
+                            onClick={onClose}
+                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors text-gray-400"
+                        >
+                            <X size={24} />
+                        </button>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Post Type & Club Selection */}
+                        <div className="space-y-4 bg-gray-50 dark:bg-black/20 p-4 rounded-2xl border border-gray-100 dark:border-gray-800">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Post Category</label>
+                            <div className="flex gap-2">
+                                <button type="button" onClick={() => { setType("event"); setSelectedClubId(""); setSelectedClubName(""); }} className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold transition-all border ${type === 'event' ? 'bg-white dark:bg-gray-800 text-primary border-primary/20 shadow-sm' : 'border-transparent text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Global Update</button>
+                                <button type="button" onClick={() => setType("club")} className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold transition-all border ${type === 'club' ? 'bg-white dark:bg-gray-800 text-primary border-primary/20 shadow-sm' : 'border-transparent text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Club Update</button>
+                            </div>
+
+                            <AnimatePresence>
+                                {type === 'club' && (
+                                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="pt-2 overflow-hidden">
+                                        <select 
+                                            required={type === 'club'}
+                                            value={selectedClubId}
+                                            onChange={(e) => {
+                                                setSelectedClubId(e.target.value);
+                                                setSelectedClubName(e.target.options[e.target.selectedIndex].text);
+                                            }}
+                                            className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 rounded-xl px-4 py-3 text-sm font-bold outline-none transition-all"
+                                        >
+                                            <option value="" disabled>Select your club...</option>
+                                            {myClubs.map(club => (
+                                                <option key={club.id} value={club.id}>{club.name}</option>
+                                            ))}
+                                        </select>
+                                        {myClubs.length === 0 && (
+                                            <p className="mt-2 text-[10px] text-red-500 font-bold uppercase tracking-widest">You have not joined any clubs.</p>
+                                        )}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
+                        {/* Title */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Title / Event Name</label>
+                            <input 
+                                required
+                                type="text"
+                                value={eventName}
+                                onChange={(e) => setEventName(e.target.value)}
+                                placeholder="What's the highlight?"
+                                className="w-full bg-gray-50 dark:bg-black/20 border-2 border-transparent focus:border-primary/20 focus:bg-white dark:focus:bg-gray-900 rounded-2xl px-6 py-4 text-base font-bold outline-none transition-all shadow-inner"
+                            />
+                        </div>
+
+                        {/* Description */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Description</label>
+                            <textarea 
+                                rows={4}
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                placeholder="Tell us more about it..."
+                                className="w-full bg-gray-50 dark:bg-black/20 border-2 border-transparent focus:border-primary/20 focus:bg-white dark:focus:bg-gray-900 rounded-2xl px-6 py-4 text-base font-medium outline-none transition-all shadow-inner resize-none"
+                            />
+                        </div>
+
+                        {/* Link */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Link (Optional)</label>
+                            <div className="relative">
+                                <LinkIcon size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <input 
+                                    type="url"
+                                    value={shareLink}
+                                    onChange={(e) => setShareLink(e.target.value)}
+                                    placeholder="https://facebook.com/share/..."
+                                    className="w-full bg-gray-50 dark:bg-black/20 border-2 border-transparent focus:border-primary/20 focus:bg-white dark:focus:bg-gray-900 rounded-2xl pl-14 pr-6 py-4 text-sm font-mono outline-none transition-all shadow-inner"
+                                />
+                                {isFetchingLink && (
+                                    <Loader2 size={18} className="absolute right-6 top-1/2 -translate-y-1/2 text-primary animate-spin" />
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Link Preview (Small) */}
+                        <AnimatePresence>
+                            {linkPreview && (
+                                <motion.div 
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="bg-gray-50 dark:bg-black/40 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 flex items-center gap-4 overflow-hidden"
+                                >
+                                    {linkPreview.thumbnail && (
+                                        <img src={linkPreview.thumbnail} className="w-16 h-16 rounded-xl object-cover shrink-0 bg-gray-200" alt="" />
+                                    )}
+                                    <div className="min-w-0 flex-1">
+                                        <h4 className="text-xs font-bold text-gray-900 dark:text-white truncate">{linkPreview.title}</h4>
+                                        <p className="text-[10px] text-gray-500 truncate mt-0.5">{linkPreview.domain}</p>
+                                    </div>
+                                    <button 
+                                        type="button"
+                                        onClick={() => setShareLink("")}
+                                        className="p-1.5 text-gray-400 hover:text-red-500"
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* Thumbnail Upload */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Thumbnail Image (Optional)</label>
+                            <input 
+                                ref={thumbnailInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={handleThumbnailChange}
+                                className="hidden"
+                                id="post-thumbnail-input"
+                            />
+                            {thumbnailPreview ? (
+                                <div className="relative group rounded-2xl overflow-hidden border-2 border-primary/20">
+                                    <img src={thumbnailPreview} alt="Thumbnail preview" className="w-full h-40 object-cover" />
+                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                                        <button
+                                            type="button"
+                                            onClick={removeThumbnail}
+                                            className="opacity-0 group-hover:opacity-100 transition-opacity p-2 bg-red-500 text-white rounded-full shadow-lg"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => thumbnailInputRef.current?.click()}
+                                    className="w-full flex items-center justify-center gap-3 py-6 bg-gray-50 dark:bg-black/20 border-2 border-dashed border-gray-200 dark:border-gray-800 hover:border-primary/30 rounded-2xl transition-all text-gray-400 hover:text-primary"
+                                >
+                                    <ImageIcon size={20} />
+                                    <span className="text-xs font-black uppercase tracking-widest">Click to add a thumbnail</span>
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
+                            {/* Visibility Switcher */}
+                            <div className="flex p-1 bg-gray-100 dark:bg-gray-800 rounded-xl">
+                                <button 
+                                    type="button"
+                                    onClick={() => setVisibility("public")}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${visibility === "public" ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm" : "text-gray-400"}`}
+                                >
+                                    <Globe size={14} /> Global
+                                </button>
+                                <button 
+                                    type="button"
+                                    onClick={() => setVisibility("campus")}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${visibility === "campus" ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm" : "text-gray-400"}`}
+                                >
+                                    <School size={14} /> Campus
+                                </button>
+                            </div>
+
+                            <button 
+                                type="submit"
+                                disabled={!eventName.trim() || isSubmitting}
+                                className="w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-4 bg-primary text-white rounded-[1.25rem] text-sm font-black uppercase tracking-[0.15em] shadow-xl shadow-primary/20 hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100"
+                            >
+                                {isSubmitting ? (
+                                    <>Posting... <Loader2 size={18} className="animate-spin" /></>
+                                ) : (
+                                    <>Share Update <Send size={18} /></>
+                                )}
+                            </button>
+                        </div>
+                    </form>
+                    
+                    {profile?.role !== 'admin' && profile?.role !== 'super_manager' && profile?.role !== 'manager' && (
+                        <div className="mt-6 p-4 bg-amber-500/5 border border-amber-500/10 rounded-2xl flex items-start gap-3">
+                            <AlertTriangle size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                            <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest leading-relaxed">
+                                Note: Your post will be visible to everyone after it is reviewed by our community moderators.
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </motion.div>
+        </div>
+    );
+}

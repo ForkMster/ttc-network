@@ -1,0 +1,75 @@
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, react-hooks/exhaustive-deps */
+"use client";
+
+import React, { useRef } from "react";
+import { ChevronLeft, ChevronRight, Hash, GraduationCap, School, Users } from "lucide-react";
+
+interface StoryFilterProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+  showCollegeFilter: boolean;
+}
+
+const filters = [
+  { id: "all", label: "All Stories", icon: <Hash className="w-4 h-4" /> },
+  { id: "student", label: "Current Students", icon: <GraduationCap className="w-4 h-4" /> },
+  { id: "teacher", label: "Teachers", icon: <School className="w-4 h-4" /> },
+  { id: "graduate", label: "Alumni", icon: <Users className="w-4 h-4" /> },
+];
+
+export default function StoryFilter({ activeTab, onTabChange, showCollegeFilter }: StoryFilterProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const { scrollLeft, clientWidth } = scrollRef.current;
+      const scrollTo = direction === "left" ? scrollLeft - 200 : scrollLeft + 200;
+      scrollRef.current.scrollTo({ left: scrollTo, behavior: "smooth" });
+    }
+  };
+
+  const allFilters = showCollegeFilter 
+    ? [...filters, { id: "my-college", label: "My College", icon: <School className="w-4 h-4 text-red-500" /> }]
+    : filters;
+
+  return (
+    <div className="relative flex items-center group max-w-4xl mx-auto px-4 sm:px-0">
+      <button 
+        onClick={() => scroll("left")}
+        className="absolute -left-4 sm:-left-12 z-10 w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+      >
+        <ChevronLeft className="w-4 h-4" />
+      </button>
+
+      <div 
+        ref={scrollRef}
+        className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-4"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {allFilters.map((f) => (
+          <button
+            key={f.id}
+            onClick={() => onTabChange(f.id)}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all border-2
+              ${activeTab === f.id 
+                ? "bg-slate-900 text-white border-slate-900 dark:bg-red-600 dark:border-red-600 shadow-md scale-105" 
+                : "bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 border-gray-100 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-600"
+              }
+            `}
+          >
+            {f.icon}
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      <button 
+        onClick={() => scroll("right")}
+        className="absolute -right-4 sm:-right-12 z-10 w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+      >
+        <ChevronRight className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
+

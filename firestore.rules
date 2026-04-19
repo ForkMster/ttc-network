@@ -1,0 +1,264 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ═══════════════════════════════════════════════════
+    //  HELPER FUNCTIONS
+    // ═══════════════════════════════════════════════════
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      // Safety check: only call get() if authenticated
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        (getUserData().role == 'admin' || getUserData().role == 'super_manager');
+    }
+
+    function isManager() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        getUserData().role == 'manager';
+    }
+
+    function isSuperManager() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        getUserData().role == 'super_manager';
+    }
+
+    function isAdminOrManager() {
+      return isAdmin() || isManager() || isSuperManager();
+    }
+
+    function isTeacher() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        getUserData().role == 'teacher';
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isNotBanned() {
+      return isAuthenticated() && (!('isBanned' in getUserData()) || getUserData().isBanned == false);
+    }
+
+    function isNotRestricted(type) {
+      return isAuthenticated() && (!('restrictions' in getUserData()) || !getUserData().restrictions.hasAny([type]));
+    }
+
+    function belongsToCollege(collegeId) {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        getUserData().collegeId == collegeId;
+    }
+
+    // ═══════════════════════════════════════════════════
+    //  USERS COLLECTION
+    // ═══════════════════════════════════════════════════
+
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) && (
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'roleVerified'])
+      ) || isAdminOrManager()
+        // Allow any authenticated user to increment/decrement followersCount on any user
+        || (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['followersCount']));
+      allow delete: if isAdmin();
+
+      // Follow system subcollections
+      match /followers/{followerId} {
+        allow read: if true;
+        allow create, delete: if isAuthenticated() && request.auth.uid == followerId;
+      }
+      match /following/{followingId} {
+        allow read: if true;
+        allow create, delete: if isOwner(userId);
+      }
+    }
+
+    // ═══════════════════════════════════════════════════
+    //  USERNAMES
+    // ═══════════════════════════════════════════════════
+
+    match /usernames/{username} {
+      allow read: if true;
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+      allow update: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow delete: if isAuthenticated() && (resource.data.uid == request.auth.uid || isAdmin());
+    }
+
+    // ═══════════════════════════════════════════════════
+    //  COLLEGES
+    // ═══════════════════════════════════════════════════
+
+    match /colleges/{collegeId} {
+      allow read: if true;
+      allow create: if isAdminOrManager();
+      allow update: if isAdminOrManager() || (isTeacher() && belongsToCollege(collegeId));
+      allow delete: if isAdmin();
+    }
+
+    // ═══════════════════════════════════════════════════
+    //  CLUBS (Modernized)
+    // ═══════════════════════════════════════════════════
+
+    match /clubs/{clubId} {
+      // DEBUG: Allowing broader access temporarily to isolate permission issues
+      allow read: if true;
+      allow create: if isAuthenticated(); // Broaden for testing, then tighten
+      allow update: if isAdminOrManager() || (
+        isAuthenticated() && resource.data.createdBy == request.auth.uid
+      ) || (
+        isAuthenticated() && 
+        exists(/databases/$(database)/documents/clubs/$(clubId)/members/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/clubs/$(clubId)/members/$(request.auth.uid)).data.role == 'President'
+      );
+      allow delete: if isAdminOrManager() || (isAuthenticated() && resource.data.createdBy == request.auth.uid);
+
+      match /members/{userId} {
+        allow read: if true;
+        allow write: if isAdminOrManager() || (
+          isAuthenticated() && 
+          exists(/databases/$(database)/documents/clubs/$(clubId)/members/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/clubs/$(clubId)/members/$(request.auth.uid)).data.role == 'President'
+        );
+      }
+
+      match /requests/{userId} {
+        allow read: if isAdminOrManager() || isAuthenticated();
+        allow create: if isAuthenticated() && request.auth.uid == userId;
+        allow delete: if isAdminOrManager() || (isAuthenticated() && (request.auth.uid == userId || 
+          (exists(/databases/$(database)/documents/clubs/$(clubId)/members/$(request.auth.uid)) &&
+           get(/databases/$(database)/documents/clubs/$(clubId)/members/$(request.auth.uid)).data.role == 'President')));
+      }
+
+      match /activities/{activityId} {
+        allow read: if true;
+        allow write: if isAdminOrManager() || (
+          isAuthenticated() && 
+          exists(/databases/$(database)/documents/clubs/$(clubId)/members/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/clubs/$(clubId)/members/$(request.auth.uid)).data.role == 'President'
+        );
+      }
+    }
+
+    // ═══════════════════════════════════════════════════
+    //  FEED & STORIES
+    // ═══════════════════════════════════════════════════
+
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && isNotBanned() && isNotRestricted('posts');
+      allow update: if isAuthenticated() && (
+        isAdminOrManager() || 
+        isOwner(resource.data.creatorId) || 
+        request.resource.data.diff(resource.data).affectedKeys().hasAny(['reactions', 'reactedBy', 'commentsCount', 'likes', 'likedBy'])
+      );
+      allow delete: if isAdminOrManager() || isOwner(resource.data.creatorId);
+    }
+
+    match /stories/{storyId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isNotBanned() && isNotRestricted('stories');
+      allow update: if isAuthenticated() && (
+        isAdminOrManager() || 
+        isOwner(resource.data.authorId) || 
+        request.resource.data.diff(resource.data).affectedKeys().hasAny(['reactions', 'reactedBy', 'commentsCount', 'inspireCount', 'inspiredBy', 'likes', 'likedBy'])
+      );
+      allow delete: if isAdminOrManager() || isOwner(resource.data.authorId);
+    }
+
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && isNotBanned();
+      allow update: if isAuthenticated() && (
+        isAdminOrManager() || 
+        isOwner(resource.data.userId) || 
+        request.resource.data.diff(resource.data).affectedKeys().hasAny(['reactions', 'reactedBy', 'likes', 'likedBy'])
+      );
+      allow delete: if isAdminOrManager() || isOwner(resource.data.userId);
+    }
+
+    match /notices/{noticeId} {
+      allow read: if true;
+      allow create: if isAdminOrManager();
+      allow update, delete: if isAdminOrManager();
+    }
+
+    match /gifts/{giftId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdminOrManager();
+    }
+
+    // ═══════════════════════════════════════════════════
+    //  GENERAL
+    // ═══════════════════════════════════════════════════
+    
+    match /notifications/{noteId} {
+       allow read: if isAuthenticated() && (isAdminOrManager() || resource.data.recipientId == request.auth.uid);
+       allow create: if isAuthenticated();
+       allow delete: if isAuthenticated() && resource.data.recipientId == request.auth.uid;
+    }
+    
+    match /pendingEdits/{editId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update: if isAdminOrManager();
+      allow delete: if isAdminOrManager() || isOwner(resource.data.authorId);
+    }
+
+    match /linkPreviewCache/{cacheId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // ═══════════════════════════════════════════════════
+    //  GLOBAL RESOURCES (Public access on read)
+    // ═══════════════════════════════════════════════════
+    match /qaCards/{docId} {
+      allow read: if true;
+      allow write: if isAdminOrManager();
+    }
+    match /admissionSteps/{docId} {
+      allow read: if true;
+      allow write: if isAdminOrManager();
+    }
+    match /admissionCosts/{docId} {
+      allow read: if true;
+      allow write: if isAdminOrManager();
+    }
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdminOrManager();
+    }
+    match /supportPhases/{docId} {
+       allow read: if true;
+       allow write: if isAdminOrManager();
+    }
+
+    match /studyPosts/{postId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && isNotBanned();
+      allow update: if isAuthenticated() && (isAdminOrManager() || isOwner(resource.data.authorId));
+      allow delete: if isAdminOrManager() || isOwner(resource.data.authorId);
+    }
+
+    // Default catch-all (safety first)
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

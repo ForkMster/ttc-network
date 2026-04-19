@@ -1,0 +1,242 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { BookOpen, ArrowLeft, Clock, Sparkles, Footprints, MessageSquare, GraduationCap, School, Share2 } from "lucide-react";
+import { getDocById, type FirestoreStory, reactToStory, subscribeStories } from "@/lib/firestore";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/contexts/ToastContext";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import StoryCard from "@/components/StoryCard";
+import { ReactionBtn } from "@/components/Social/ReactionSystem";
+import { CommentSystem } from "@/components/Social/CommentSystem";
+
+export default function StoryDetailPage() {
+    const params = useParams();
+    const router = useRouter();
+    const id = params.id as string;
+    const { user, profile } = useAuth();
+    const { showToast } = useToast();
+
+    const [story, setStory] = useState<FirestoreStory & { id: string } | null>(null);
+    const [moreStories, setMoreStories] = useState<(FirestoreStory & { id: string })[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchStory = async () => {
+            try {
+                const data = await getDocById<FirestoreStory>("stories", id);
+                setStory(data as FirestoreStory & { id: string });
+                
+                // Fetch more stories from same college
+                const unsubscribe = subscribeStories((all) => {
+                    const filtered = all.filter(s => s.collegeId === data.collegeId && s.id !== id).slice(0, 3);
+                    setMoreStories(filtered);
+                });
+                return () => unsubscribe();
+            } catch (err: any) {
+                console.error("Error fetching story:", err);
+                setError(err.code === 'permission-denied' ? "This story is private." : "Story not found.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) fetchStory();
+    }, [id]);
+
+    if (loading) return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50/50">
+            <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+        </div>
+    );
+
+    if (error || !story) return (
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+            <BookOpen className="w-16 h-16 text-gray-300 mb-4" />
+            <h1 className="text-2xl font-bold mb-2">Something went wrong</h1>
+            <p className="text-gray-500 mb-6">{error || "We couldn't find that story."}</p>
+            <button onClick={() => router.push('/story')} className="px-6 py-2 bg-primary text-white rounded-xl font-bold">Back to Feed</button>
+        </div>
+    );
+
+    return (
+        <div className="min-h-screen bg-[#FDF8F3] dark:bg-[#0c0c10] pt-24 pb-20">
+            <div className="max-w-4xl mx-auto px-6">
+                {/* Header / Breadcrumb */}
+                <div className="flex items-center justify-between mb-12">
+                    <button onClick={() => router.back()} className="flex items-center gap-2 text-gray-500 hover:text-navy-900 dark:hover:text-gray-200 transition-colors font-black uppercase tracking-widest text-[10px]">
+                        <ArrowLeft size={16} /> Back to Stories
+                    </button>
+                    <div className="flex items-center gap-4">
+                        <button 
+                            onClick={() => {
+                                navigator.clipboard.writeText(window.location.href);
+                                showToast("Link copied to clipboard", "success");
+                            }}
+                            className="p-3 rounded-2xl bg-white dark:bg-gray-800 shadow-xl shadow-navy-900/5 border border-gray-100 dark:border-gray-700 hover:scale-110 active:scale-95 transition-all text-gray-400 hover:text-primary"
+                        >
+                            <Share2 size={18} />
+                        </button>
+                    </div>
+                </div>
+
+                <article className="bg-white dark:bg-gray-900 rounded-[3rem] shadow-2xl shadow-navy-900/5 overflow-hidden border border-gray-100 dark:border-gray-800">
+                    {/* Hero Header */}
+                    <header className="p-8 sm:p-14 border-b border-gray-50 dark:border-gray-800 bg-gray-50/20 dark:bg-gray-800/20">
+                        <div className="flex items-center gap-4 mb-8">
+                            <span className="px-5 py-2 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                                {story.authorRole} Journey
+                            </span>
+                            <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <Clock size={14} className="text-primary" /> {story.readingTimeMinutes} MIN READ
+                            </span>
+                        </div>
+                        <h1 className="text-4xl md:text-6xl font-black text-navy-900 dark:text-gray-100 leading-[1.1] mb-10 font-bengali tracking-tight">
+                            {story.title}
+                        </h1>
+
+                        <div className="flex items-center gap-5">
+                            <Link href={`/profile/${story.authorId}`} className="relative group">
+                                <div className="w-20 h-20 rounded-[2rem] overflow-hidden border-2 border-primary/20 rotate-3 transition-all duration-500 group-hover:rotate-0 group-hover:scale-105 shadow-lg">
+                                    {story.authorPhoto ? (
+                                        <img src={story.authorPhoto} alt={story.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-2xl font-black text-gray-400">
+                                            {story.name?.[0]}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="absolute -bottom-2 -right-2 p-2 bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800">
+                                    <GraduationCap className="w-5 h-5 text-primary" />
+                                </div>
+                            </Link>
+                            <div>
+                                <Link href={`/profile/${story.authorId}`} className="text-2xl font-black hover:text-primary transition-colors block tracking-tight">
+                                    {story.name}
+                                </Link>
+                                <p className="text-base font-bold text-gray-500">{story.college}</p>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Content Section */}
+                    <div className="p-8 sm:p-14">
+                        <div className="prose prose-xl dark:prose-invert max-w-none">
+                            <h2 className="text-3xl font-black mb-10 flex items-center gap-4 tracking-tight">
+                                <div className="p-3 rounded-2xl bg-primary/10 text-primary">
+                                    <Footprints className="w-7 h-7" />
+                                </div>
+                                Their Journey
+                            </h2>
+                            <div className="text-gray-800 dark:text-gray-200 font-bengali leading-[1.8] text-2xl whitespace-pre-wrap mb-20">
+                                {story.fullStory}
+                            </div>
+
+                            {story.futureGoals && (
+                                <div className="relative group mb-12">
+                                    <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                                    <div className="relative bg-white dark:bg-emerald-950/10 p-10 rounded-[2.5rem] border border-emerald-100 dark:border-emerald-900/40">
+                                        <h3 className="text-emerald-900 dark:text-emerald-400 text-2xl font-black mb-6 flex items-center gap-4 tracking-tight">
+                                            <div className="p-3 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
+                                                <Sparkles className="w-6 h-6" />
+                                            </div>
+                                            Future Goals
+                                        </h3>
+                                        <p className="text-emerald-800 dark:text-emerald-300 font-bengali text-xl leading-relaxed">
+                                            {story.futureGoals}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {story.oneAdvice && (
+                                <div className="relative group mb-12">
+                                    <div className="absolute -inset-1 bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                                    <div className="relative bg-white dark:bg-amber-950/10 p-10 rounded-[2.5rem] border border-amber-100 dark:border-amber-900/40">
+                                        <h3 className="text-amber-900 dark:text-amber-400 text-2xl font-black mb-6 flex items-center gap-4 tracking-tight">
+                                            <div className="p-3 rounded-2xl bg-amber-100 dark:bg-amber-900/30">
+                                                <MessageSquare className="w-6 h-6" />
+                                            </div>
+                                            One Piece of Advice
+                                        </h3>
+                                        <p className="text-amber-800 dark:text-amber-300 font-bengali text-xl leading-relaxed italic">
+                                            &ldquo;{story.oneAdvice}&rdquo;
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Reactions Footer */}
+                        <div className="mt-20 pt-12 border-t border-gray-100 dark:border-gray-800 flex flex-col md:flex-row items-center justify-between gap-10">
+                            <div className="scale-125 origin-left">
+                                <ReactionBtn 
+                                    contentId={story.id} 
+                                    contentType="story" 
+                                    reactions={story.reactions} 
+                                    reactedBy={story.reactedBy} 
+                                    currentUserId={user?.uid}
+                                />
+                            </div>
+
+                            <div className="flex flex-col items-center md:items-end">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Engage with this journey</p>
+                                <div className="flex items-center gap-4">
+                                    <div className="flex -space-x-3">
+                                        {[...Array(4)].map((_, i) => (
+                                            <div key={i} className="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-gray-800 border-2 border-white dark:border-gray-900 shadow-sm" />
+                                        ))}
+                                    </div>
+                                    <span className="text-xs font-black text-navy-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 rounded-xl">
+                                        {Object.values(story.reactions || {}).reduce((a, b) => a + (b as number), 0)}+ Reactions
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                {/* Comments Section */}
+                <div id="comments" className="mt-16 sm:mt-24">
+                    <div className="flex items-center gap-4 mb-10 px-4">
+                        <div className="p-3 rounded-2xl bg-primary/10 text-primary">
+                            <MessageSquare className="w-6 h-6" />
+                        </div>
+                        <h2 className="text-3xl font-black text-navy-900 dark:text-gray-100 tracking-tight">
+                            Comments
+                        </h2>
+                    </div>
+                    <div className="bg-white dark:bg-gray-900 rounded-[3rem] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-2xl shadow-navy-900/5">
+                        <CommentSystem 
+                            contentId={story.id} 
+                            contentType="story" 
+                        />
+                    </div>
+                </div>
+
+                {/* More from College Carousel */}
+                {moreStories.length > 0 && (
+                    <div className="mt-24 sm:mt-32">
+                        <div className="flex items-center justify-between mb-10 px-4">
+                            <h2 className="text-3xl font-black text-navy-900 dark:text-gray-100 flex items-center gap-4 tracking-tight">
+                                <div className="p-3 rounded-2xl bg-primary/10 text-primary">
+                                    <School className="w-6 h-6" />
+                                </div>
+                                More from {story.college.split(',')[0]}
+                            </h2>
+                            <Link href="/story" className="text-sm font-black text-primary hover:underline uppercase tracking-widest">View all</Link>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 px-4">
+                            {moreStories.map(s => (
+                                <StoryCard key={s.id} story={s} />
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}

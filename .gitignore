@@ -34,3 +34,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# debug output files
+*.txt
+*.log
+*exportFirebaseFull*
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!.eslintrc.json
+!firebase.json
+!firestore.indexes.json

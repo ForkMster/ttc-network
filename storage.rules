@@ -1,0 +1,88 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ═══════════════════════════════════════════════════
+    //  HELPER FUNCTIONS
+    // ═══════════════════════════════════════════════════
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function isImageFile() {
+      return request.resource.contentType.matches('image/.*');
+    }
+
+    function isUnder5MB() {
+      return request.resource.size < 5 * 1024 * 1024;
+    }
+
+    function isUnder10MB() {
+      return request.resource.size < 10 * 1024 * 1024;
+    }
+
+    // ═══════════════════════════════════════════════════
+    //  COLLEGE LOGOS — admins/managers only
+    // ═══════════════════════════════════════════════════
+
+    match /logos/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() && isImageFile() && isUnder5MB();
+    }
+
+    // ═══════════════════════════════════════════════════
+    //  COLLEGE COVER PHOTOS
+    // ═══════════════════════════════════════════════════
+
+    match /covers/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() && isImageFile() && isUnder10MB();
+    }
+
+    // ═══════════════════════════════════════════════════
+    //  COLLEGE GALLERY — authenticated users
+    // ═══════════════════════════════════════════════════
+
+    match /gallery/{collegeId}/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() && isImageFile() && isUnder10MB();
+    }
+
+    // ═══════════════════════════════════════════════════
+    //  USER AVATARS — own folder only
+    // ═══════════════════════════════════════════════════
+
+    match /avatars/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if isOwner(userId) && isImageFile() && isUnder5MB();
+    }
+
+    // ═══════════════════════════════════════════════════
+    //  USER COVER PHOTOS — own folder only
+    // ═══════════════════════════════════════════════════
+
+    match /userCovers/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if isOwner(userId) && isImageFile() && isUnder10MB();
+    }
+
+    // ═══════════════════════════════════════════════════
+    //  NOTICE ATTACHMENTS
+    // ═══════════════════════════════════════════════════
+
+    match /attachments/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() && isUnder10MB();
+    }
+
+    // Default: block everything else
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

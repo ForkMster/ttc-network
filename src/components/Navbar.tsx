@@ -1,0 +1,520 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, LogIn, Sun, Moon, User, LogOut, ChevronDown, Shield, Search, Bell, Globe, BookText, MessageSquare, CheckCircle, Award, Heart } from "lucide-react";
+import Image from "next/image";
+import { useTheme } from "@/components/ThemeProvider";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
+import { SearchDialog } from "./SearchDialog";
+import { subscribeNotifications, markNotificationRead, markAllNotificationsRead, type FirestoreNotification } from "@/lib/firestore";
+import { NotificationCenter } from "./NotificationCenter";
+
+const navLinks = [
+    { href: "/", label: "Home" },
+    { href: "/news-feed", label: "News Feed" },
+    { href: "/story", label: "Story" },
+    { href: "/college-info", label: "College Info" },
+    { href: "/notice", label: "Notice" },
+    { href: "/study", label: "Study" },
+    { href: "/support", label: "Support 💛" },
+];
+
+
+
+export default function Navbar() {
+    const pathname = usePathname();
+    const router = useRouter();
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const { theme, toggleTheme } = useTheme();
+    const { user, profile, loading, logout } = useAuth();
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
+    const [notifOpen, setNotifOpen] = useState(false);
+    const [notifications, setNotifications] = useState<(FirestoreNotification & { id: string })[]>([]);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const notifRef = useRef<HTMLDivElement>(null);
+
+    const unreadCount = notifications.filter(n => !n.read).length;
+
+    // Close dropdown on outside click
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+                setDropdownOpen(false);
+            }
+            if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+                setNotifOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    // Subscribe to real-time notifications
+    useEffect(() => {
+        if (!user?.uid) return;
+        const unsub = subscribeNotifications(user.uid, (data) => {
+            setNotifications(data);
+        });
+        return () => unsub();
+    }, [user?.uid]);
+
+    const handleLogout = async () => {
+        setDropdownOpen(false);
+        await logout();
+        router.push("/");
+    };
+
+    const handleNotifClick = async (notif: FirestoreNotification & { id: string }) => {
+        // Optimistically update local state so UI reflects immediately
+        if (!notif.read) {
+            setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, read: true } : n));
+            markNotificationRead(notif.id).catch(console.error);
+        }
+        setNotifOpen(false);
+        
+        // Use targetUrl if available (Deep Linking)
+        if (notif.targetUrl) {
+            router.push(notif.targetUrl);
+            return;
+        }
+
+        // Fallback for legacy notifications
+        if (notif.relatedType === "post") router.push("/news-feed");
+        else if (notif.relatedType === "story") router.push(`/story/${notif.relatedId}`);
+        else if (notif.relatedType === "college") router.push("/college-info");
+        else if (notif.relatedType === "club") router.push("/college-info");
+        else if (notif.relatedType === "notice") router.push("/notice");
+    };
+
+    const handleMarkAllRead = async () => {
+        if (!user?.uid || unreadCount === 0) return;
+        // Optimistic update
+        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+        try {
+            await markAllNotificationsRead(user.uid);
+        } catch (err) {
+            console.error("Failed to mark all as read:", err);
+        }
+    };
+
+    const formatTime = (ts: any) => {
+        if (!ts?.seconds) return "";
+        const d = new Date(ts.seconds * 1000);
+        const now = new Date();
+        const diffMs = now.getTime() - d.getTime();
+        const diffMin = Math.floor(diffMs / 60000);
+        if (diffMin < 1) return "Just now";
+        if (diffMin < 60) return `${diffMin}m ago`;
+        const diffHr = Math.floor(diffMin / 60);
+        if (diffHr < 24) return `${diffHr}h ago`;
+        const diffDay = Math.floor(diffHr / 24);
+        if (diffDay < 7) return `${diffDay}d ago`;
+        return d.toLocaleDateString();
+    };
+
+    const isAdminOrManager = profile?.role === "admin" || profile?.role === "manager" || profile?.role === "super_manager";
+    const panelName = profile?.role === "admin" ? "Admin Panel" : "Management Section";
+
+    const displayName = profile?.displayName || user?.displayName || "User";
+    const initials = displayName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
+    const photoURL = profile?.photoURL || user?.photoURL || "";
+
+    const { siteName, logoUrl } = useSiteSettings();
+    const nameWords = siteName.split(" ");
+    const firstWord = nameWords[0] || "TTC";
+    const restWords = nameWords.slice(1).join(" ") || "Network";
+
+    return (
+        <nav className="sticky top-0 z-50 bg-white/80 dark:bg-[#0f1117]/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-800/50 shadow-sm">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center justify-between h-16">
+                    {/* Logo — Emblem + Styled Text */}
+                    <Link href="/" className="flex items-center gap-2.5 group">
+                        <Image
+                            src={logoUrl}
+                            alt={siteName}
+                            width={40}
+                            height={40}
+                            className="object-contain h-9 w-9 sm:h-10 sm:w-10 rounded-full"
+                            priority
+                        />
+                        <div className="flex items-baseline gap-1">
+                            <span className="text-xl sm:text-2xl font-extrabold tracking-tight font-english"
+                                style={{
+                                    background: "linear-gradient(135deg, #1a5276, #0e6655)",
+                                    WebkitBackgroundClip: "text",
+                                    WebkitTextFillColor: "transparent",
+                                }}>
+                                {firstWord}
+                            </span>
+                            <span className="text-[10px] sm:text-xs font-bold tracking-[0.15em] uppercase"
+                                style={{
+                                    background: "linear-gradient(135deg, #2D2F8F, #E63946)",
+                                    WebkitBackgroundClip: "text",
+                                    WebkitTextFillColor: "transparent",
+                                }}>
+                                {restWords}
+                            </span>
+                        </div>
+                    </Link>
+
+                    {/* Desktop Navigation */}
+                    <div className="hidden md:flex items-center gap-1">
+                        {navLinks.map((link) => {
+                            const isActive = pathname === link.href;
+                            return (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    className={`px-3 py-2 rounded-xl text-sm font-bold transition-all relative ${isActive
+                                        ? "text-primary dark:text-[#1D9BF0] bg-primary/5 dark:bg-[#1D9BF0]/10"
+                                        : "text-gray-900 dark:text-[#71767B] hover:text-primary dark:hover:text-[#1D9BF0] hover:bg-gray-50 dark:hover:bg-white/5"
+                                        }`}
+                                >
+                                    {link.label}
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="activeNav"
+                                            className="absolute bottom-0 left-2 right-2 h-0.5 bg-accent rounded-full"
+                                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                        />
+                                    )}
+                                </Link>
+                            );
+                        })}
+                    </div>
+
+                    {/* Right side: Search + Notifications + Theme toggle + Login/Profile */}
+                    <div className="hidden md:flex items-center gap-2">
+                        {/* Search Button */}
+                        <button
+                            onClick={() => setSearchOpen(true)}
+                            className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 group"
+                            aria-label="Search"
+                        >
+                            <Search size={18} className="text-gray-600 dark:text-gray-400 group-hover:text-primary transition-colors" />
+                        </button>
+
+                        {/* Notification Bell */}
+                        {user && (
+                            <div className="relative" ref={notifRef}>
+                                <button
+                                    onClick={() => setNotifOpen(!notifOpen)}
+                                    className={`p-2.5 rounded-xl transition-all duration-300 group relative ${
+                                        notifOpen 
+                                            ? "bg-primary/10 dark:bg-primary/20" 
+                                            : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                    }`}
+                                    aria-label="Notifications"
+                                >
+                                    <Bell size={18} className={`transition-colors ${notifOpen ? "text-primary" : "text-gray-600 dark:text-gray-400 group-hover:text-primary"}`} />
+                                    {unreadCount > 0 && (
+                                        <motion.span 
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
+                                            className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-lg ring-2 ring-white dark:ring-[#0f1117]"
+                                        >
+                                            {unreadCount > 9 ? "9+" : unreadCount}
+                                        </motion.span>
+                                    )}
+                                </button>
+
+                                <NotificationCenter 
+                                    isOpen={notifOpen}
+                                    onClose={() => setNotifOpen(false)}
+                                    notifications={notifications}
+                                    unreadCount={unreadCount}
+                                    onMarkRead={handleNotifClick}
+                                    onMarkAllRead={handleMarkAllRead}
+                                />
+                            </div>
+                        )}
+
+                        {/* Theme Toggle */}
+                        <button
+                            onClick={toggleTheme}
+                            className="relative p-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 group"
+                            aria-label="Toggle theme"
+                        >
+                            <AnimatePresence mode="wait">
+                                {theme === "light" ? (
+                                    <motion.div
+                                        key="moon"
+                                        initial={{ rotate: -90, scale: 0 }}
+                                        animate={{ rotate: 0, scale: 1 }}
+                                        exit={{ rotate: 90, scale: 0 }}
+                                        transition={{ duration: 0.3, ease: "easeOut" }}
+                                    >
+                                        <Moon size={18} className="text-gray-600 group-hover:text-primary transition-colors" />
+                                    </motion.div>
+                                ) : (
+                                    <motion.div
+                                        key="sun"
+                                        initial={{ rotate: 90, scale: 0 }}
+                                        animate={{ rotate: 0, scale: 1 }}
+                                        exit={{ rotate: -90, scale: 0 }}
+                                        transition={{ duration: 0.3, ease: "easeOut" }}
+                                    >
+                                        <Sun size={18} className="text-amber-400 group-hover:text-amber-300 transition-colors" />
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </button>
+
+                        {/* Login Button or User Avatar */}
+                        {loading ? (
+                            <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+                        ) : user ? (
+                            /* Logged In — Avatar + Dropdown */
+                            <div className="relative" ref={dropdownRef}>
+                                <button
+                                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                                    className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                                >
+                                    {photoURL ? (
+                                        <Image
+                                            src={photoURL}
+                                            alt={displayName}
+                                            width={36}
+                                            height={36}
+                                            className="w-9 h-9 rounded-full object-cover border-2 border-primary/20"
+                                        />
+                                    ) : (
+                                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm font-bold">
+                                            {initials}
+                                        </div>
+                                    )}
+                                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 max-w-[100px] truncate hidden lg:block">
+                                        {displayName.split(" ")[0]}
+                                    </span>
+                                    <ChevronDown
+                                        size={14}
+                                        className={`text-gray-400 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
+                                    />
+                                </button>
+
+                                {/* Dropdown Menu */}
+                                <AnimatePresence>
+                                    {dropdownOpen && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                                            transition={{ duration: 0.15 }}
+                                            className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#1a1b23] rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50"
+                                        >
+                                            {/* User Info Header */}
+                                            <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                                                <p className="text-sm font-bold text-gray-800 dark:text-gray-200 truncate">{displayName}</p>
+                                                {profile?.username && (
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">@{profile.username}</p>
+                                                )}
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
+                                            </div>
+
+                                            {/* Menu Items */}
+                                            <div className="py-1">
+                                                <Link
+                                                    href={`/profile/${user.uid}`}
+                                                    onClick={() => setDropdownOpen(false)}
+                                                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                                                >
+                                                    <User size={16} />
+                                                    My Profile
+                                                </Link>
+                                                {isAdminOrManager && (
+                                                    <Link
+                                                        href="/admin"
+                                                        onClick={() => setDropdownOpen(false)}
+                                                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                                                    >
+                                                        <Shield size={16} className="text-primary dark:text-blue-400" />
+                                                        {panelName}
+                                                    </Link>
+                                                )}
+                                            </div>
+
+                                            {/* Logout */}
+                                            <div className="border-t border-gray-100 dark:border-gray-700 py-1">
+                                                <button
+                                                    onClick={handleLogout}
+                                                    className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                                                >
+                                                    <LogOut size={16} />
+                                                    Sign Out
+                                                </button>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        ) : (
+                            /* Not Logged In — Login Button */
+                            <Link
+                                href="/login"
+                                className="flex items-center gap-2 px-5 py-2.5 bg-accent text-white text-sm font-bold rounded-xl hover:bg-red-600 transition-all duration-200 shadow-md shadow-accent/20 hover:shadow-lg hover:shadow-accent/30"
+                            >
+                                <LogIn size={16} />
+                                Login
+                            </Link>
+                        )}
+                    </div>
+
+                    {/* Mobile: Search + Notifications + Theme toggle + Menu button */}
+                    <div className="md:hidden flex items-center gap-2">
+                        <button
+                            onClick={() => setSearchOpen(true)}
+                            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 transition-colors"
+                            aria-label="Search"
+                        >
+                            <Search size={18} className="text-gray-600 dark:text-gray-400" />
+                        </button>
+                        {user && (
+                            <div className="relative">
+                                <button
+                                    onClick={() => setNotifOpen(!notifOpen)}
+                                    className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 transition-colors relative"
+                                    aria-label="Notifications"
+                                >
+                                    <Bell size={18} className="text-gray-600 dark:text-gray-400" />
+                                    {unreadCount > 0 && (
+                                        <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[8px] font-black rounded-full flex items-center justify-center ring-2 ring-white dark:ring-[#0f1117]">
+                                            {unreadCount > 9 ? "9+" : unreadCount}
+                                        </span>
+                                    )}
+                                </button>
+                                
+                                <NotificationCenter 
+                                    isOpen={notifOpen}
+                                    onClose={() => setNotifOpen(false)}
+                                    notifications={notifications}
+                                    unreadCount={unreadCount}
+                                    onMarkRead={handleNotifClick}
+                                    onMarkAllRead={handleMarkAllRead}
+                                />
+                            </div>
+                        )}
+                        <button
+                            onClick={toggleTheme}
+                            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 transition-colors"
+                            aria-label="Toggle theme"
+                        >
+                            {theme === "light" ? (
+                                <Moon size={18} className="text-gray-600" />
+                            ) : (
+                                <Sun size={18} className="text-amber-400" />
+                            )}
+                        </button>
+                        <button
+                            onClick={() => setMobileOpen(!mobileOpen)}
+                            className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                            aria-label="Toggle menu"
+                        >
+                            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Mobile Menu */}
+            <AnimatePresence>
+                {mobileOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="md:hidden bg-white dark:bg-[#0f1117] border-t border-gray-100 dark:border-gray-800 overflow-hidden"
+                    >
+                        <div className="px-4 py-3 space-y-1">
+                            {navLinks.map((link) => {
+                                const isActive = pathname === link.href;
+                                return (
+                                    <Link
+                                        key={link.href}
+                                        href={link.href}
+                                        onClick={() => setMobileOpen(false)}
+                                        className={`block px-4 py-3 rounded-xl text-sm font-semibold transition-all ${isActive
+                                            ? "text-primary dark:text-blue-400 bg-primary/5 dark:bg-primary/10 border-l-4 border-accent"
+                                            : "text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800"
+                                            }`}
+                                    >
+                                        {link.label}
+                                    </Link>
+                                );
+                            })}
+
+                            {/* Mobile: Auth Section */}
+                            {user ? (
+                                <>
+                                    <div className="flex items-center gap-3 px-4 py-3 mt-2 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                                        {photoURL ? (
+                                            <Image
+                                                src={photoURL}
+                                                alt={displayName}
+                                                width={36}
+                                                height={36}
+                                                className="w-9 h-9 rounded-full object-cover border-2 border-primary/20"
+                                            />
+                                        ) : (
+                                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm font-bold shrink-0">
+                                                {initials}
+                                            </div>
+                                        )}
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-bold text-gray-800 dark:text-gray-200 truncate">{displayName}</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
+                                        </div>
+                                    </div>
+                                    <Link
+                                        href={`/profile/${user.uid}`}
+                                        onClick={() => setMobileOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl"
+                                    >
+                                        <User size={16} /> My Profile
+                                    </Link>
+                                    {isAdminOrManager && (
+                                        <Link
+                                            href="/admin"
+                                            onClick={() => setMobileOpen(false)}
+                                            className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl"
+                                        >
+                                            <Shield size={16} className="text-primary dark:text-blue-400" /> {panelName}
+                                        </Link>
+                                    )}
+                                    <button
+                                        onClick={() => { setMobileOpen(false); handleLogout(); }}
+                                        className="flex items-center gap-3 w-full px-4 py-3 text-sm font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl"
+                                    >
+                                        <LogOut size={16} /> Sign Out
+                                    </button>
+                                </>
+                            ) : (
+                                <Link
+                                    href="/login"
+                                    onClick={() => setMobileOpen(false)}
+                                    className="flex items-center justify-center gap-2 mt-3 px-5 py-3 bg-accent text-white text-sm font-bold rounded-xl hover:bg-red-600 transition-all"
+                                >
+                                    <LogIn size={16} />
+                                    Login
+                                </Link>
+                            )}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            
+            <SearchDialog isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+        </nav>
+    );
+}
