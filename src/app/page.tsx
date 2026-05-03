@@ -564,7 +564,7 @@ export default function HomePage() {
       )}
 
       {/* ===== WHY TTC NETWORK EXISTS (Card-Based Storytelling) ===== */}
-      <section className="py-24 sm:py-32 px-4 relative overflow-hidden bg-[#050505]">
+      <section className="py-24 sm:py-32 px-4 relative overflow-hidden bg-white dark:bg-[#050505] transition-colors duration-500">
         <div className="max-w-6xl mx-auto relative z-10">
 
           {/* Header */}
@@ -585,7 +585,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-4xl sm:text-6xl font-black text-white mb-6 font-sora tracking-tight"
+              className="text-4xl sm:text-6xl font-black text-slate-900 dark:text-white mb-6 font-sora tracking-tight"
             >
               Why TTC Network <span className="text-red-500">Exists</span>
             </motion.h2>
@@ -595,7 +595,7 @@ export default function HomePage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-gray-400 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed font-medium"
+              className="text-slate-600 dark:text-gray-400 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed font-medium"
             >
               Every TTC student and teacher deserves better. Here&apos;s what we kept seeing — and couldn&apos;t ignore.
             </motion.p>
@@ -609,17 +609,17 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="md:col-span-2 relative group overflow-hidden p-8 sm:p-12 rounded-[2rem] border border-amber-500/20 bg-amber-500/[0.03] hover:bg-amber-500/[0.06] transition-all duration-500"
+              className="md:col-span-2 relative group overflow-hidden p-8 sm:p-12 rounded-[2rem] border border-slate-200 dark:border-amber-500/20 bg-white dark:bg-amber-500/[0.03] hover:bg-slate-50 dark:hover:bg-amber-500/[0.06] shadow-sm hover:shadow-xl transition-all duration-500"
             >
               <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start">
                 <div className="w-16 h-16 shrink-0 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
                   <Landmark size={32} />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-2xl sm:text-3xl font-black text-white mb-6 leading-tight">
+                  <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-6 leading-tight transition-colors">
                     {STORY_TIMELINE[0].title}
                   </h3>
-                  <p className="text-gray-400 text-base sm:text-lg leading-relaxed max-w-3xl">
+                  <p className="text-slate-600 dark:text-gray-400 text-base sm:text-lg leading-relaxed max-w-3xl transition-colors">
                     {STORY_TIMELINE[0].story}
                   </p>
                 </div>
@@ -635,16 +635,16 @@ export default function HomePage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="relative group overflow-hidden p-8 sm:p-10 rounded-[2rem] border border-blue-500/20 bg-blue-500/[0.03] hover:bg-blue-500/[0.06] transition-all duration-500"
+              className="relative group overflow-hidden p-8 sm:p-10 rounded-[2rem] border border-slate-200 dark:border-blue-500/20 bg-white dark:bg-blue-500/[0.03] hover:bg-slate-50 dark:hover:bg-blue-500/[0.06] shadow-sm hover:shadow-xl transition-all duration-500"
             >
               <div className="relative z-10">
                 <div className="w-12 h-12 shrink-0 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500 mb-8">
                   <Users size={24} />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-black text-white mb-6 leading-snug">
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mb-6 leading-snug transition-colors">
                   {STORY_TIMELINE[1].title}
                 </h3>
-                <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
+                <p className="text-slate-600 dark:text-gray-400 text-sm sm:text-base leading-relaxed transition-colors">
                   {STORY_TIMELINE[1].story}
                 </p>
               </div>
@@ -656,16 +656,16 @@ export default function HomePage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="relative group overflow-hidden p-8 sm:p-10 rounded-[2rem] border border-purple-500/20 bg-purple-500/[0.03] hover:bg-purple-500/[0.06] transition-all duration-500"
+              className="relative group overflow-hidden p-8 sm:p-10 rounded-[2rem] border border-slate-200 dark:border-purple-500/20 bg-white dark:bg-purple-500/[0.03] hover:bg-slate-50 dark:hover:bg-purple-500/[0.06] shadow-sm hover:shadow-xl transition-all duration-500"
             >
               <div className="relative z-10">
                 <div className="w-12 h-12 shrink-0 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500 mb-8">
                   <Target size={24} />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-black text-white mb-6 leading-snug">
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mb-6 leading-snug transition-colors">
                   {STORY_TIMELINE[2].title}
                 </h3>
-                <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
+                <p className="text-slate-600 dark:text-gray-400 text-sm sm:text-base leading-relaxed transition-colors">
                   {STORY_TIMELINE[2].story}
                 </p>
               </div>
@@ -677,16 +677,16 @@ export default function HomePage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
-              className="relative group overflow-hidden p-8 sm:p-10 rounded-[2rem] border border-emerald-500/20 bg-emerald-500/[0.03] hover:bg-emerald-500/[0.06] transition-all duration-500"
+              className="relative group overflow-hidden p-8 sm:p-10 rounded-[2rem] border border-slate-200 dark:border-emerald-500/20 bg-white dark:bg-emerald-500/[0.03] hover:bg-slate-50 dark:hover:bg-emerald-500/[0.06] shadow-sm hover:shadow-xl transition-all duration-500"
             >
               <div className="relative z-10">
                 <div className="w-12 h-12 shrink-0 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 mb-8">
                   <ClipboardList size={24} />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-black text-white mb-6 leading-snug">
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mb-6 leading-snug transition-colors">
                   {STORY_TIMELINE[3].title}
                 </h3>
-                <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
+                <p className="text-slate-600 dark:text-gray-400 text-sm sm:text-base leading-relaxed transition-colors">
                   {STORY_TIMELINE[3].story}
                 </p>
               </div>
@@ -698,16 +698,16 @@ export default function HomePage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.4 }}
-              className="relative group overflow-hidden p-8 sm:p-10 rounded-[2rem] border border-red-500/20 bg-red-500/[0.03] hover:bg-red-500/[0.06] transition-all duration-500"
+              className="relative group overflow-hidden p-8 sm:p-10 rounded-[2rem] border border-slate-200 dark:border-red-500/20 bg-white dark:bg-red-500/[0.03] hover:bg-slate-50 dark:hover:bg-red-500/[0.06] shadow-sm hover:shadow-xl transition-all duration-500"
             >
               <div className="relative z-10">
                 <div className="w-12 h-12 shrink-0 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 mb-8">
                   <Book size={24} />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-black text-white mb-6 leading-snug">
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mb-6 leading-snug transition-colors">
                   {STORY_TIMELINE[4].title}
                 </h3>
-                <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
+                <p className="text-slate-600 dark:text-gray-400 text-sm sm:text-base leading-relaxed transition-colors">
                   {STORY_TIMELINE[4].story}
                 </p>
               </div>
@@ -718,8 +718,8 @@ export default function HomePage() {
 
         {/* Background Gradients */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full pointer-events-none">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-500/5 blur-[120px] rounded-full" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-amber-500/5 blur-[120px] rounded-full" />
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-500/5 dark:bg-red-500/5 blur-[120px] rounded-full" />
+          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-amber-500/5 dark:bg-amber-500/5 blur-[120px] rounded-full" />
         </div>
       </section>
 
