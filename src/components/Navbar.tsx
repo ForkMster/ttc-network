@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LogIn, Sun, Moon, User, LogOut, ChevronDown, Shield, Search, Bell, Globe, BookText, MessageSquare, CheckCircle, Award, Heart } from "lucide-react";
+import { LogIn, Sun, Moon, User, LogOut, ChevronDown, Shield, Search, Bell, Globe, BookText, MessageSquare, CheckCircle, Award, Heart } from "lucide-react";
 import Image from "next/image";
 import { useTheme } from "@/components/ThemeProvider";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,7 +29,6 @@ const navLinks = [
 export default function Navbar() {
     const pathname = usePathname();
     const router = useRouter();
-    const [mobileOpen, setMobileOpen] = useState(false);
     const { theme, toggleTheme } = useTheme();
     const { user, profile, loading, logout } = useAuth();
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -173,12 +172,12 @@ export default function Navbar() {
                         })}
                     </div>
 
-                    {/* Right side: Search + Notifications + Theme toggle + Login/Profile */}
-                    <div className="hidden md:flex items-center gap-2">
+                    {/* Right side: Actions */}
+                    <div className="flex items-center gap-1.5 sm:gap-2">
                         {/* Search Button */}
                         <button
                             onClick={() => setSearchOpen(true)}
-                            className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 group"
+                            className="p-2 md:p-2.5 rounded-lg md:rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 group"
                             aria-label="Search"
                         >
                             <Search size={18} className="text-gray-600 dark:text-gray-400 group-hover:text-primary transition-colors" />
@@ -189,7 +188,7 @@ export default function Navbar() {
                             <div className="relative" ref={notifRef}>
                                 <button
                                     onClick={() => setNotifOpen(!notifOpen)}
-                                    className={`p-2.5 rounded-xl transition-all duration-300 group relative ${
+                                    className={`p-2 md:p-2.5 rounded-lg md:rounded-xl transition-all duration-300 group relative ${
                                         notifOpen 
                                             ? "bg-primary/10 dark:bg-primary/20" 
                                             : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -201,7 +200,7 @@ export default function Navbar() {
                                         <motion.span 
                                             initial={{ scale: 0 }}
                                             animate={{ scale: 1 }}
-                                            className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-lg ring-2 ring-white dark:ring-[#0f1117]"
+                                            className="absolute -top-0.5 -right-0.5 w-4 h-4 md:w-5 md:h-5 bg-red-500 text-white text-[8px] md:text-[10px] font-black rounded-full flex items-center justify-center shadow-lg ring-2 ring-white dark:ring-[#0f1117]"
                                         >
                                             {unreadCount > 9 ? "9+" : unreadCount}
                                         </motion.span>
@@ -222,7 +221,7 @@ export default function Navbar() {
                         {/* Theme Toggle */}
                         <button
                             onClick={toggleTheme}
-                            className="relative p-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 group"
+                            className="relative p-2 md:p-2.5 rounded-lg md:rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 group"
                             aria-label="Toggle theme"
                         >
                             <AnimatePresence mode="wait">
@@ -254,13 +253,13 @@ export default function Navbar() {
 
                         {/* Login Button or User Avatar */}
                         {loading ? (
-                            <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+                            <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
                         ) : user ? (
                             /* Logged In — Avatar + Dropdown */
                             <div className="relative" ref={dropdownRef}>
                                 <button
                                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                                    className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                                    className="flex items-center gap-1.5 md:gap-2 px-1.5 py-1.5 md:px-2 md:py-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
                                 >
                                     {photoURL ? (
                                         <Image
@@ -268,10 +267,10 @@ export default function Navbar() {
                                             alt={displayName}
                                             width={36}
                                             height={36}
-                                            className="w-9 h-9 rounded-full object-cover border-2 border-primary/20"
+                                            className="w-8 h-8 md:w-9 md:h-9 rounded-full object-cover border-2 border-primary/20"
                                         />
                                     ) : (
-                                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm font-bold">
+                                        <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-xs md:text-sm font-bold">
                                             {initials}
                                         </div>
                                     )}
@@ -280,7 +279,7 @@ export default function Navbar() {
                                     </span>
                                     <ChevronDown
                                         size={14}
-                                        className={`text-gray-400 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
+                                        className={`text-gray-400 transition-transform duration-200 hidden md:block ${dropdownOpen ? "rotate-180" : ""}`}
                                     />
                                 </button>
 
@@ -343,157 +342,16 @@ export default function Navbar() {
                             /* Not Logged In — Login Button */
                             <Link
                                 href="/login"
-                                className="flex items-center gap-2 px-5 py-2.5 bg-accent text-white text-sm font-bold rounded-xl hover:bg-red-600 transition-all duration-200 shadow-md shadow-accent/20 hover:shadow-lg hover:shadow-accent/30"
+                                className="flex items-center gap-2 px-3 md:px-5 py-2 md:py-2.5 bg-accent text-white text-xs md:text-sm font-bold rounded-lg md:rounded-xl hover:bg-red-600 transition-all duration-200 shadow-md shadow-accent/20 hover:shadow-lg hover:shadow-accent/30"
                             >
                                 <LogIn size={16} />
-                                Login
+                                <span className="hidden sm:block">Login</span>
                             </Link>
                         )}
-                    </div>
 
-                    {/* Mobile: Search + Notifications + Theme toggle + Menu button */}
-                    <div className="md:hidden flex items-center gap-2">
-                        <button
-                            onClick={() => setSearchOpen(true)}
-                            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 transition-colors"
-                            aria-label="Search"
-                        >
-                            <Search size={18} className="text-gray-600 dark:text-gray-400" />
-                        </button>
-                        {user && (
-                            <div className="relative">
-                                <button
-                                    onClick={() => setNotifOpen(!notifOpen)}
-                                    className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 transition-colors relative"
-                                    aria-label="Notifications"
-                                >
-                                    <Bell size={18} className="text-gray-600 dark:text-gray-400" />
-                                    {unreadCount > 0 && (
-                                        <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[8px] font-black rounded-full flex items-center justify-center ring-2 ring-white dark:ring-[#0f1117]">
-                                            {unreadCount > 9 ? "9+" : unreadCount}
-                                        </span>
-                                    )}
-                                </button>
-                                
-                                <NotificationCenter 
-                                    isOpen={notifOpen}
-                                    onClose={() => setNotifOpen(false)}
-                                    notifications={notifications}
-                                    unreadCount={unreadCount}
-                                    onMarkRead={handleNotifClick}
-                                    onMarkAllRead={handleMarkAllRead}
-                                />
-                            </div>
-                        )}
-                        <button
-                            onClick={toggleTheme}
-                            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 transition-colors"
-                            aria-label="Toggle theme"
-                        >
-                            {theme === "light" ? (
-                                <Moon size={18} className="text-gray-600" />
-                            ) : (
-                                <Sun size={18} className="text-amber-400" />
-                            )}
-                        </button>
-                        <button
-                            onClick={() => setMobileOpen(!mobileOpen)}
-                            className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                            aria-label="Toggle menu"
-                        >
-                            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-                        </button>
                     </div>
                 </div>
             </div>
-
-            {/* Mobile Menu */}
-            <AnimatePresence>
-                {mobileOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="md:hidden bg-white dark:bg-[#0f1117] border-t border-gray-100 dark:border-gray-800 overflow-hidden"
-                    >
-                        <div className="px-4 py-3 space-y-1">
-                            {navLinks.map((link) => {
-                                const isActive = pathname === link.href;
-                                return (
-                                    <Link
-                                        key={link.href}
-                                        href={link.href}
-                                        onClick={() => setMobileOpen(false)}
-                                        className={`block px-4 py-3 rounded-xl text-sm font-semibold transition-all ${isActive
-                                            ? "text-primary dark:text-blue-400 bg-primary/5 dark:bg-primary/10 border-l-4 border-accent"
-                                            : "text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800"
-                                            }`}
-                                    >
-                                        {link.label}
-                                    </Link>
-                                );
-                            })}
-
-                            {/* Mobile: Auth Section */}
-                            {user ? (
-                                <>
-                                    <div className="flex items-center gap-3 px-4 py-3 mt-2 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-                                        {photoURL ? (
-                                            <Image
-                                                src={photoURL}
-                                                alt={displayName}
-                                                width={36}
-                                                height={36}
-                                                className="w-9 h-9 rounded-full object-cover border-2 border-primary/20"
-                                            />
-                                        ) : (
-                                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm font-bold shrink-0">
-                                                {initials}
-                                            </div>
-                                        )}
-                                        <div className="min-w-0">
-                                            <p className="text-sm font-bold text-gray-800 dark:text-gray-200 truncate">{displayName}</p>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
-                                        </div>
-                                    </div>
-                                    <Link
-                                        href={`/profile/${user.uid}`}
-                                        onClick={() => setMobileOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl"
-                                    >
-                                        <User size={16} /> My Profile
-                                    </Link>
-                                    {isAdminOrManager && (
-                                        <Link
-                                            href="/admin"
-                                            onClick={() => setMobileOpen(false)}
-                                            className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl"
-                                        >
-                                            <Shield size={16} className="text-primary dark:text-blue-400" /> {panelName}
-                                        </Link>
-                                    )}
-                                    <button
-                                        onClick={() => { setMobileOpen(false); handleLogout(); }}
-                                        className="flex items-center gap-3 w-full px-4 py-3 text-sm font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl"
-                                    >
-                                        <LogOut size={16} /> Sign Out
-                                    </button>
-                                </>
-                            ) : (
-                                <Link
-                                    href="/login"
-                                    onClick={() => setMobileOpen(false)}
-                                    className="flex items-center justify-center gap-2 mt-3 px-5 py-3 bg-accent text-white text-sm font-bold rounded-xl hover:bg-red-600 transition-all"
-                                >
-                                    <LogIn size={16} />
-                                    Login
-                                </Link>
-                            )}
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
             
             <SearchDialog isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
         </nav>

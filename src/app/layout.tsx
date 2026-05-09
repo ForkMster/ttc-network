@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Hind_Siliguri, Sora, Caveat } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import MobileDock from "@/components/MobileDock";
 import DeveloperStrip from "@/components/DeveloperStrip";
 import ThemeProvider from "@/components/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -65,7 +66,8 @@ export default function RootLayout({
               <ToastProvider>
                 <ConfirmProvider>
                   <Navbar />
-                  <main className="pb-14">{children}</main>
+                  <main className="pb-24 md:pb-14">{children}</main>
+                  <MobileDock />
                   <DeveloperStrip />
                 </ConfirmProvider>
               </ToastProvider>

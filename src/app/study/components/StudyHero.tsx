@@ -9,11 +9,12 @@ interface StudyHeroProps {
         liveSessions: number;
         members: number;
     };
+    isVisible?: boolean;
     onSearchChange: (val: string) => void;
     onShareClick: () => void;
 }
 
-export default function StudyHero({ stats, onSearchChange, onShareClick }: StudyHeroProps) {
+export default function StudyHero({ stats, isVisible, onSearchChange, onShareClick }: StudyHeroProps) {
     return (
         <div className="relative pt-12 pb-20 overflow-hidden">
             {/* Background elements */}
@@ -39,9 +40,10 @@ export default function StudyHero({ stats, onSearchChange, onShareClick }: Study
                 </motion.div>
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16">
-                    {[
-                        { icon: BookText, label: "Materials Shared", value: stats.materials, color: "text-blue-500 bg-blue-50 dark:bg-blue-900/20" },
+                {isVisible !== false && (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16">
+                        {[
+                            { icon: BookText, label: "Materials Shared", value: stats.materials, color: "text-blue-500 bg-blue-50 dark:bg-blue-900/20" },
                         { icon: Video, label: "Schedules Posted", value: stats.liveSessions, color: "text-amber-500 bg-amber-50 dark:bg-amber-900/20" },
                         { icon: Users, label: "Colleges Active", value: stats.members, color: "text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20" }
                     ].map((stat, i) => (
@@ -58,8 +60,9 @@ export default function StudyHero({ stats, onSearchChange, onShareClick }: Study
                             <div className="text-3xl font-black text-navy-900 dark:text-white mb-1">{stat.value}+</div>
                             <div className="text-[10px] font-black uppercase tracking-[0.1em] text-gray-400">{stat.label}</div>
                         </motion.div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
 
                 {/* Action Bar */}
                 <motion.div

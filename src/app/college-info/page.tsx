@@ -1205,16 +1205,6 @@ function CollegeInfoInner() {
                                                                             &ldquo;{selectedCollege.principal?.bio || "Committed to nurturing the next generation of educators through innovation and academic excellence."}&rdquo;
                                                                         </p>
                                                                     </div>
-
-                                                                    <div className="mt-8 flex flex-wrap items-center justify-center md:justify-between gap-3">
-                                                                        <div className="flex items-center justify-center gap-3">
-                                                                            <div className="flex -space-x-3">
-                                                                                {[1, 2, 3].map(i => <div key={i} className={`w-8 h-8 rounded-full border-2 border-white dark:border-[#161620] bg-gray-100 dark:bg-white/10`} />)}
-                                                                            </div>
-                                                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Trusted by 1k+ Students</span>
-                                                                        </div>
-                                                                        <div className="hidden sm:block h-px flex-1 mx-8 bg-gradient-to-r from-gray-100 via-transparent to-transparent dark:from-white/5" />
-                                                                    </div>
                                                                 </div>
                                                             )}
                                                         </div>

@@ -185,7 +185,7 @@ export default function StudyTab({ profile, onCountRefresh }: { profile: UserPro
                         </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                         {[
                             { label: "Materials", key: "materialsCount", icon: BookOpen },
                             { label: "Schedules", key: "schedulesCount", icon: Clock },
@@ -217,6 +217,22 @@ export default function StudyTab({ profile, onCountRefresh }: { profile: UserPro
                                     {heroSettings?.autoCount ? "Active" : "Disabled"}
                                 </button>
                                 <span className="text-[9px] text-gray-400 font-bold leading-tight">Sync counts with db real-time</span>
+                            </div>
+                        </div>
+                        <div className="p-4 bg-gray-50 dark:bg-gray-900/40 rounded-3xl border border-gray-100 dark:border-gray-800 flex flex-col justify-center">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Visibility</label>
+                            <div className="flex items-center gap-2">
+                                <button 
+                                    onClick={() => setHeroSettings(prev => prev ? { ...prev, isVisible: prev.isVisible === false ? true : false } : null)}
+                                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                        heroSettings?.isVisible !== false
+                                            ? "bg-emerald-500 text-white" 
+                                            : "bg-red-500 text-white"
+                                    }`}
+                                >
+                                    {heroSettings?.isVisible !== false ? "Visible" : "Hidden"}
+                                </button>
+                                <span className="text-[9px] text-gray-400 font-bold leading-tight">Show section to users</span>
                             </div>
                         </div>
                     </div>

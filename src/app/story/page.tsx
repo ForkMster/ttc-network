@@ -166,33 +166,35 @@ function StoryPageInner() {
                     </div>
                   </div>
 
-                     <div className="flex-1 grid grid-cols-2 gap-4">
-                        {[
-                          { label: "Colleges", value: heroData?.collegesCount || "14", icon: <School className="w-5 h-5 text-amber-500" /> },
-                          { label: "Community", value: heroData?.autoCountCommunity ? `${liveUserCount}+` : (heroData?.communityCount || "1.2k+"), icon: <Users className="w-5 h-5 text-emerald-500" /> },
-                          { label: "Stories", value: stories.length || (heroData?.storiesFallback || "85+"), icon: <BookOpen className="w-5 h-5 text-blue-500" /> },
-                          { label: "Impact", value: heroData?.impactLevel || "High", icon: <Sparkles className="w-5 h-5 text-purple-500" /> },
-                        ].map((stat, i) => (
-                          <div key={i} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-6 rounded-3xl border-2 border-white dark:border-gray-700 shadow-sm animate-slide-in-up" 
-                               style={{ animationDelay: `${i * 0.1}s` }}>
-                            {!heroData ? (
-                                <div className="space-y-2 animate-pulse">
-                                    <div className="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-gray-700" />
-                                    <div className="h-6 bg-gray-100 dark:bg-gray-700 rounded w-1/2" />
-                                    <div className="h-3 bg-gray-50 dark:bg-gray-800 rounded w-1/3" />
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="w-10 h-10 rounded-2xl bg-gray-50 dark:bg-gray-900 flex items-center justify-center mb-4">
-                                      {stat.icon}
+                    {heroData?.isVisible !== false && (
+                         <div className="flex-1 grid grid-cols-2 gap-4">
+                            {[
+                              { label: "Colleges", value: heroData?.collegesCount || "14", icon: <School className="w-5 h-5 text-amber-500" /> },
+                              { label: "Community", value: heroData?.autoCountCommunity ? `${liveUserCount}+` : (heroData?.communityCount || "1.2k+"), icon: <Users className="w-5 h-5 text-emerald-500" /> },
+                              { label: "Stories", value: stories.length || (heroData?.storiesFallback || "85+"), icon: <BookOpen className="w-5 h-5 text-blue-500" /> },
+                              { label: "Impact", value: heroData?.impactLevel || "High", icon: <Sparkles className="w-5 h-5 text-purple-500" /> },
+                            ].map((stat, i) => (
+                              <div key={i} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-6 rounded-3xl border-2 border-white dark:border-gray-700 shadow-sm animate-slide-in-up" 
+                                   style={{ animationDelay: `${i * 0.1}s` }}>
+                                {!heroData ? (
+                                    <div className="space-y-2 animate-pulse">
+                                        <div className="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-gray-700" />
+                                        <div className="h-6 bg-gray-100 dark:bg-gray-700 rounded w-1/2" />
+                                        <div className="h-3 bg-gray-50 dark:bg-gray-800 rounded w-1/3" />
                                     </div>
-                                    <div className="text-2xl font-black text-slate-900 dark:text-gray-100">{stat.value}</div>
-                                    <div className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">{stat.label}</div>
-                                </>
-                            )}
+                                ) : (
+                                    <>
+                                        <div className="w-10 h-10 rounded-2xl bg-gray-50 dark:bg-gray-900 flex items-center justify-center mb-4">
+                                          {stat.icon}
+                                        </div>
+                                        <div className="text-2xl font-black text-slate-900 dark:text-gray-100">{stat.value}</div>
+                                        <div className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">{stat.label}</div>
+                                    </>
+                                )}
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
+                    )}
                 </div>
               </div>
             </div>

@@ -566,6 +566,7 @@ export interface StoryHeroSettings {
     storiesFallback: string;
     impactLevel: string;
     autoCountCommunity: boolean;
+    isVisible?: boolean;
     updatedAt?: Timestamp | null;
 }
 
@@ -574,6 +575,7 @@ export interface StudyHeroSettings {
     schedulesCount: number;
     membersCount: number;
     autoCount: boolean;
+    isVisible?: boolean;
     updatedAt?: Timestamp | null;
 }
 
@@ -2369,7 +2371,8 @@ const DEFAULT_STUDY_HERO_SETTINGS: StudyHeroSettings = {
     materialsCount: 124,
     schedulesCount: 8,
     membersCount: 1400,
-    autoCount: false
+    autoCount: false,
+    isVisible: true
 };
 
 export async function getStudyHeroSettings(): Promise<StudyHeroSettings> {
@@ -3061,6 +3064,7 @@ const DEFAULT_STORY_HERO: StoryHeroSettings = {
     storiesFallback: "85+",
     impactLevel: "High",
     autoCountCommunity: false,
+    isVisible: true,
 };
 
 export async function getStoryHeroSettings(): Promise<StoryHeroSettings> {

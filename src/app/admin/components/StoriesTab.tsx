@@ -215,6 +215,25 @@ export default function StoriesTab({ profile, onCountRefresh }: { profile: UserP
                                 </div>
                                 <p className="text-[9px] text-white/50 font-bold mt-2 uppercase tracking-tight">Active Users: {realUserCount}</p>
                             </div>
+                            <div className="bg-white/10 backdrop-blur-md rounded-3xl p-4 border border-white/20 flex flex-col justify-center min-w-[140px]">
+                                <div className="flex items-center justify-between gap-3">
+                                    <div className="flex items-center gap-2">
+                                        <div className={`w-2 h-2 rounded-full ${heroData?.isVisible ? "bg-emerald-400" : "bg-red-400"}`} />
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-indigo-200">Visibility</span>
+                                    </div>
+                                    <button 
+                                        onClick={() => setHeroData(prev => prev ? { ...prev, isVisible: !prev.isVisible } : null)}
+                                        className={`w-10 h-5 rounded-full relative transition-all ${
+                                            heroData?.isVisible ? "bg-emerald-400" : "bg-white/20"
+                                        }`}
+                                    >
+                                        <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${heroData?.isVisible ? "right-1" : "left-1"}`} />
+                                    </button>
+                                </div>
+                                <p className="text-[9px] text-white/50 font-bold mt-2 uppercase tracking-tight">
+                                    {heroData?.isVisible ? "Publicly Visible" : "Hidden"}
+                                </p>
+                            </div>
                             <button 
                                 onClick={handleSaveHero}
                                 disabled={heroSaving}
