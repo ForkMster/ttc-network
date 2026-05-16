@@ -99,6 +99,16 @@ export interface SocialLink {
     url: string;
 }
 
+export interface PositionEntry {
+    id: string;
+    title: string;       // e.g. "Moderator", "Ambassador", "Owner", "Volunteer"
+    organization: string; // e.g. "TTC Network", "BdOSN", "Dhaka TTC Debate Club"
+    type: "current" | "past";
+    startDate?: string;   // e.g. "Jan 2025"
+    endDate?: string;     // e.g. "Present" or "Dec 2025"
+    link?: string;        // Optional URL to organization or role
+}
+
 export interface UserProfile {
     uid: string;
     email: string;
@@ -149,6 +159,7 @@ export interface UserProfile {
     clubPosition?: string; // e.g., "President", "Member", or empty
     badges?: Badge[];
     achievementsList?: Achievement[];
+    positions?: PositionEntry[];
 }
 
 interface AuthContextType {

@@ -970,31 +970,40 @@ export function ProfilePageContent({ uidOverride }: { uidOverride?: string } = {
                 
                 {/* LEFT SIDEBAR (L-SIDEBAR) — 3 cols */}
                 <div className="lg:col-span-3 space-y-8">
-                    {/* College Card */}
+                    {/* Positions & Roles Card */}
                     <div className="bg-white dark:bg-gray-900 border-2 border-slate-100 dark:border-gray-800 rounded-2xl sm:rounded-[2.5rem] p-5 sm:p-8 shadow-sm">
-                        <div className="text-[10px] font-black uppercase text-gray-400 tracking-[0.25em] mb-4">Official Base</div>
-                        <h3 className="text-xl font-black text-navy-900 dark:text-gray-100 leading-tight mb-1">{college?.name || "TTC Community"}</h3>
-                        <p className="text-xs font-bold text-gray-400 mb-6">{college?.city || "National Registry"}</p>
+                        <div className="text-[10px] font-black uppercase text-gray-400 tracking-[0.25em] mb-4">Positions & Roles</div>
                         
-                        {isTeacher && profileData.workHistory && (
-                             <div className="pt-6 border-t font-hind-siliguri border-slate-50 dark:border-gray-800 space-y-4">
-                                 <div className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Recent Postings</div>
-                                 <div className="space-y-4">
-                                     {Array.isArray(profileData.workHistory) && profileData.workHistory.slice(0, 3).map((exp: any, i) => (
-                                         <div key={i} className="flex gap-3">
-                                             <div className="w-1.5 h-1.5 rounded-full bg-primary/20 mt-1.5" />
-                                             <div className="flex-1">
-                                                 <div className="text-xs font-black text-navy-900 dark:text-gray-200">{exp.company}</div>
-                                                 <div className="text-[10px] font-bold text-gray-400">{exp.startDate} • {exp.role}</div>
-                                             </div>
-                                         </div>
-                                     ))}
-                                     {Array.isArray(profileData.workHistory) && profileData.workHistory.length > 3 && (
-                                         <button className="text-[10px] font-black text-primary uppercase ml-4">+ {profileData.workHistory.length - 3} more</button>
-                                     )}
-                                 </div>
-                             </div>
-                        )}
+                        <div className="space-y-5">
+                            {profileData.positions && profileData.positions.length > 0 ? profileData.positions.map((pos: any, i) => (
+                                <div key={i} className="flex gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-gray-800/50 hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-gray-700">
+                                    <div className={`w-2 h-2 rounded-full mt-2 shrink-0 transition-all ${pos.type === 'current' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse' : 'bg-gray-300 dark:bg-gray-600'}`} />
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-start justify-between gap-2">
+                                            <div className={`text-sm font-black truncate ${pos.type === 'current' ? 'text-navy-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400'}`}>
+                                                {pos.title}
+                                            </div>
+                                            {pos.link && (
+                                                <a href={pos.link.startsWith('http') ? pos.link : `https://${pos.link}`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-lg bg-white dark:bg-gray-900 text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors shrink-0 shadow-sm border border-slate-100 dark:border-gray-800" title="Visit Link">
+                                                    <ExternalLink size={12} />
+                                                </a>
+                                            )}
+                                        </div>
+                                        <div className="text-xs font-bold text-gray-500 truncate mt-0.5">
+                                            {pos.organization}
+                                        </div>
+                                        {(pos.startDate || pos.endDate) && (
+                                            <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-gray-400 mt-2">
+                                                <Calendar size={10} className="text-gray-300" />
+                                                <span>{pos.startDate || "?"} — {pos.endDate || (pos.type === 'current' ? "Present" : "?")}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )) : (
+                                <div className="text-xs text-gray-400 font-bold italic text-center py-4">No positions listed yet.</div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Quick Stats */}

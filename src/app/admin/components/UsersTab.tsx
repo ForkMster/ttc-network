@@ -245,7 +245,7 @@ export default function UsersTab({ profile }: { profile: UserProfile }) {
                                     user.role === "teacher" ? "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800" :
                                     "bg-gray-50 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700"
                                 }`}>
-                                    {user.role.replace('_', ' ')}
+                                    {(user.role || 'student').replace('_', ' ')}
                                 </span>
                                 <button onClick={() => setModeratingUser(user)}
                                     className="p-2 rounded-lg text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-amber-900/30 hover:text-amber-500 transition-colors"
@@ -284,7 +284,7 @@ export default function UsersTab({ profile }: { profile: UserProfile }) {
                                 {/* Profile Summary */}
                                 <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700">
                                     <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg">
-                                        {moderatingUser.displayName[0]}
+                                        {moderatingUser.displayName?.[0] || '?'}
                                     </div>
                                     <div>
                                         <p className="font-bold text-gray-900 dark:text-white leading-tight">{moderatingUser.displayName}</p>

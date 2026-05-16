@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
     X, Save, User, GraduationCap, Briefcase, Award, Globe, 
     AtSign, MapPin, Target, Sparkles, Plus, Trash2, Camera,
-    Loader2, Check, Building, Info, Mail, Phone, MessageCircle, Facebook
+    Loader2, Check, Building, Info, Mail, Phone, MessageCircle, Facebook, Shield
 } from "lucide-react";
-import { useAuth, type UserProfile, type WorkExperienceEntry, type EducationEntry } from "@/contexts/AuthContext";
+import { useAuth, type UserProfile, type WorkExperienceEntry, type EducationEntry, type PositionEntry } from "@/contexts/AuthContext";
 import { colleges } from "@/data/colleges";
 import { updateDoc, doc, serverTimestamp } from "firebase/firestore";
 import { getDb } from "@/lib/firebase";
@@ -321,6 +321,24 @@ export function ProfileEditDrawer({ isOpen, onClose, profile }: ProfileEditDrawe
                                     </div>
                                 </div>
                             </CollapsibleSection>
+
+                            {/* 3.5 Positions & Roles */}
+                            <ArrayEditor<PositionEntry>
+                                title="Positions & Roles"
+                                icon={Shield}
+                                items={formData.positions || []}
+                                onChange={(items) => updateField("positions", items)}
+                                itemTitleKey="title"
+                                itemSubtitleKey="organization"
+                                fields={[
+                                    { key: "title", label: "Position Title", type: "text", placeholder: "e.g. Owner, Moderator", required: true },
+                                    { key: "organization", label: "Organization / Company", type: "text", placeholder: "e.g. TTC NETWORK", required: true },
+                                    { key: "link", label: "Link / Website", type: "url", placeholder: "https://..." },
+                                    { key: "type", label: "Status", type: "select", options: [{label: "Current Role", value: "current"}, {label: "Past Role", value: "past"}], required: true },
+                                    { key: "startDate", label: "Start Date", type: "text", placeholder: "e.g. Jan 2024" },
+                                    { key: "endDate", label: "End Date", type: "text", placeholder: "e.g. Present, or Dec 2025" },
+                                ]}
+                            />
 
                             {/* 4. Narrative Sections */}
                             <CollapsibleSection title="Narrative & Ambition" icon={Target}>
