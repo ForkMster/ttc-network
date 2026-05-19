@@ -49,11 +49,11 @@ const colleges = [
     { id: "rangpur", name: "Govt. Teachers' Training College, Rangpur", nameBn: "সরকারি টিচার্স ট্রেনিং কলেজ, রংপুর", city: "Rangpur", established: 1882, slug: "ttc-rangpur", logo: "", hasLogo: false },
     { id: "khulna", name: "Govt. Teachers' Training College, Khulna", nameBn: "সরকারি টিচার্স ট্রেনিং কলেজ, খুলনা", city: "Khulna", established: 1970, slug: "ttc-khulna", logo: "", hasLogo: false },
     { id: "mymensingh", name: "Govt. Women's Teachers' Training College, Mymensingh", nameBn: "সরকারি মহিলা টিচার্স ট্রেনিং কলেজ, ময়মনসিংহ", city: "Mymensingh", established: 1952, slug: "ttc-mymensingh", logo: "", hasLogo: false },
+    { id: "mymensingh-general", name: "Govt. Teachers' Training College, Mymensingh", nameBn: "সরকারি টিচার্স ট্রেনিং কলেজ, ময়মনসিংহ", city: "Mymensingh", established: 1948, slug: "ttc-mymensingh-general", logo: "", hasLogo: false },
     { id: "jashore", name: "Govt. Teachers' Training College, Jashore", nameBn: "সরকারি টিচার্স ট্রেনিং কলেজ, যশোর", city: "Jashore", established: 1963, slug: "ttc-jashore", logo: "", hasLogo: false },
     { id: "barishal", name: "Govt. Teachers' Training College, Barishal", nameBn: "সরকারি টিচার্স ট্রেনিং কলেজ, বরিশাল", city: "Barishal", established: 1999, slug: "ttc-barishal", logo: "", hasLogo: false },
     { id: "faridpur", name: "Govt. Teachers' Training College, Faridpur", nameBn: "সরকারি টিচার্স ট্রেনিং কলেজ, ফরিদপুর", city: "Faridpur", established: 2005, slug: "ttc-faridpur", logo: "", hasLogo: false },
     { id: "pabna", name: "Govt. B.Ed College, Pabna", nameBn: "সরকারি বি.এড কলেজ, পাবনা", city: "Pabna", established: 1998, slug: "bed-pabna", logo: "", hasLogo: false },
-    { id: "bogura", name: "Govt. B.Ed College, Bogura", nameBn: "সরকারি বি.এড কলেজ, বগুড়া", city: "Bogura", established: 2000, slug: "bed-bogura", logo: "", hasLogo: false },
 ];
 
 const collegeProfiles: Record<string, {
@@ -139,18 +139,18 @@ const collegeProfiles: Record<string, {
     },
     rangpur: { shortName: "TTC Rangpur", location: "Rangpur, Bangladesh", principal: "To be updated", principalContact: "", teachers: 0, students: 0, classrooms: 0, hostel: false, description: "Established in 1882.", achievements: [], color: "#2D7D2D", social: { facebook: "", website: "" }, teachersList: [], clubs: [] },
     khulna: { shortName: "TTC Khulna", location: "Khulna, Bangladesh", principal: "To be updated", principalContact: "", teachers: 0, students: 0, classrooms: 0, hostel: false, description: "Established in 1970.", achievements: [], color: "#1A5276", social: { facebook: "", website: "" }, teachersList: [], clubs: [] },
-    mymensingh: { shortName: "TTC Mymensingh (Women)", location: "Mymensingh, Bangladesh", principal: "To be updated", principalContact: "", teachers: 0, students: 0, classrooms: 0, hostel: false, description: "Established in 1952. The only dedicated women's TTC.", achievements: [], color: "#8E44AD", social: { facebook: "", website: "" }, teachersList: [], clubs: [] },
+    mymensingh: { shortName: "Women's TTC Mymensingh", location: "Mymensingh, Bangladesh", principal: "To be updated", principalContact: "", teachers: 0, students: 0, classrooms: 0, hostel: false, description: "Established in 1952. The only dedicated women's TTC.", achievements: [], color: "#8E44AD", social: { facebook: "", website: "" }, teachersList: [], clubs: [] },
+    "mymensingh-general": { shortName: "TTC Mymensingh", location: "Mymensingh, Bangladesh", principal: "To be updated", principalContact: "", teachers: 0, students: 0, classrooms: 0, hostel: false, description: "Established in 1948.", achievements: [], color: "#1A5276", social: { facebook: "", website: "" }, teachersList: [], clubs: [] },
     jashore: { shortName: "TTC Jashore", location: "Jashore, Bangladesh", principal: "To be updated", principalContact: "", teachers: 0, students: 0, classrooms: 0, hostel: false, description: "Established in 1963.", achievements: [], color: "#1B4F72", social: { facebook: "", website: "" }, teachersList: [], clubs: [] },
     barishal: { shortName: "TTC Barishal", location: "Barishal, Bangladesh", principal: "To be updated", principalContact: "", teachers: 0, students: 0, classrooms: 0, hostel: false, description: "Established in 1999.", achievements: [], color: "#0E6655", social: { facebook: "", website: "" }, teachersList: [], clubs: [] },
     faridpur: { shortName: "TTC Faridpur", location: "Faridpur, Bangladesh", principal: "To be updated", principalContact: "", teachers: 0, students: 0, classrooms: 0, hostel: false, description: "Established in 2005.", achievements: [], color: "#1A5276", social: { facebook: "", website: "" }, teachersList: [], clubs: [] },
     pabna: { shortName: "B.Ed College Pabna", location: "Pabna, Bangladesh", principal: "To be updated", principalContact: "", teachers: 0, students: 0, classrooms: 0, hostel: false, description: "Established in 1998.", achievements: [], color: "#6C3483", social: { facebook: "", website: "" }, teachersList: [], clubs: [] },
-    bogura: { shortName: "B.Ed College Bogura", location: "Bogura, Bangladesh", principal: "To be updated", principalContact: "", teachers: 0, students: 0, classrooms: 0, hostel: false, description: "Established in 2000.", achievements: [], color: "#1A5276", social: { facebook: "", website: "" }, teachersList: [], clubs: [] },
 };
 
 const faqSeedData = [
     { question: "টিটিসি কানেক্ট কী?", answer: "TTC Network হলো বাংলাদেশের ১৪টি সরকারি টিচার্স ট্রেনিং কলেজের শিক্ষার্থী ও শিক্ষকদের জন্য একটি ইউনিফাইড ডিজিটাল প্ল্যাটফর্ম।", language: "bengali", order: 1 },
     { question: "কারা এই প্ল্যাটফর্ম ব্যবহার করতে পারবে?", answer: "সকল সরকারি টিটিসির বর্তমান শিক্ষার্থী, শিক্ষক, ও প্রাক্তন শিক্ষার্থীরা এই প্ল্যাটফর্ম ব্যবহার করতে পারবেন।", language: "bengali", order: 2 },
-    { question: "কোন কোন কলেজ এখানে আছে?", answer: "বাংলাদেশের সকল ১৪টি সরকারি টিটিসি — ঢাকা, ময়মনসিংহ, রাজশাহী, ফেনী, কুমিল্লা, সিলেট, চট্টগ্রাম, রংপুর, খুলনা, যশোর, বরিশাল, ফরিদপুর, পাবনা, এবং বগুড়া।", language: "bengali", order: 3 },
+    { question: "কোন কোন কলেজ এখানে আছে?", answer: "বাংলাদেশের সকল ১৪টি সরকারি টিটিসি — ঢাকা, ময়মনসিংহ (মহিলা), ময়মনসিংহ (সাধারণ), রাজশাহী, ফেনী, কুমিল্লা, সিলেট, চট্টগ্রাম, রংপুর, খুলনা, যশোর, বরিশাল, ফরিদপুর, এবং পাবনা।", language: "bengali", order: 3 },
     { question: "এই প্ল্যাটফর্ম কি সরকারি?", answer: "না, এটি একটি স্টুডেন্ট-বিল্ট ইনিশিয়েটিভ — ফেনী টিটিসির শিক্ষার্থী সাকিব কর্তৃক নির্মিত ও পরিচালিত।", language: "bengali", order: 4 },
 ];
 

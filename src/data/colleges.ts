@@ -104,12 +104,22 @@ export const colleges: College[] = [
     },
     {
         id: "mymensingh",
-        name: "Govt. Teachers' Training College (Women), Mymensingh",
+        name: "Govt. Women's Teachers' Training College, Mymensingh",
         nameBn: "সরকারি মহিলা টিচার্স ট্রেনিং কলেজ, ময়মনসিংহ",
         logo: "",
         city: "Mymensingh",
         established: 1952,
         slug: "mymensingh",
+        hasLogo: false,
+    },
+    {
+        id: "mymensingh-general",
+        name: "Govt. Teachers' Training College, Mymensingh",
+        nameBn: "সরকারি টিচার্স ট্রেনিং কলেজ, ময়মনসিংহ",
+        logo: "",
+        city: "Mymensingh",
+        established: 1948,
+        slug: "mymensingh-general",
         hasLogo: false,
     },
     {
@@ -152,16 +162,7 @@ export const colleges: College[] = [
         slug: "pabna",
         hasLogo: false,
     },
-    {
-        id: "bogura",
-        name: "Govt. B.Ed College, Bogura",
-        nameBn: "সরকারি বি.এড কলেজ, বগুড়া",
-        logo: "",
-        city: "Bogura",
-        established: 2000,
-        slug: "bogura",
-        hasLogo: false,
-    },
+
 ];
 
 export const TOTAL_TTCS = 14;

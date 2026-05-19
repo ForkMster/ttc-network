@@ -68,12 +68,12 @@ const colleges = [
     { id: "chattagram", name: "Govt. Teachers' Training College, Chattagram", shortName: "TTC Chattagram", nameBn: "সরকারি টিচার্স ট্রেনিং কলেজ, চট্টগ্রাম", city: "Chattagram", established: 1958, slug: "ttc-chattagram", logo: "", hasLogo: false },
     { id: "rangpur", name: "Govt. Teachers' Training College, Rangpur", shortName: "TTC Rangpur", nameBn: "সরকারি টিচার্স ট্রেনিং কলেজ, রংপুর", city: "Rangpur", established: 1882, slug: "ttc-rangpur", logo: "", hasLogo: false },
     { id: "khulna", name: "Govt. Teachers' Training College, Khulna", shortName: "TTC Khulna", nameBn: "সরকারি টিচার্স ট্রেনিং কলেজ, খুলনা", city: "Khulna", established: 1970, slug: "ttc-khulna", logo: "", hasLogo: false },
-    { id: "mymensingh", name: "Govt. Women's Teachers' Training College, Mymensingh", shortName: "TTC Mymensingh", nameBn: "সরকারি মহিলা টিচার্স ট্রেনিং কলেজ, ময়মনসিংহ", city: "Mymensingh", established: 1952, slug: "ttc-mymensingh", logo: "", hasLogo: false },
+    { id: "mymensingh", name: "Govt. Women's Teachers' Training College, Mymensingh", shortName: "Women's TTC Mymensingh", nameBn: "সরকারি মহিলা টিচার্স ট্রেনিং কলেজ, ময়মনসিংহ", city: "Mymensingh", established: 1952, slug: "ttc-mymensingh", logo: "", hasLogo: false },
+    { id: "mymensingh-general", name: "Govt. Teachers' Training College, Mymensingh", shortName: "TTC Mymensingh", nameBn: "সরকারি টিচার্স ট্রেনিং কলেজ, ময়মনসিংহ", city: "Mymensingh", established: 1948, slug: "ttc-mymensingh-general", logo: "", hasLogo: false },
     { id: "jashore", name: "Govt. Teachers' Training College, Jashore", shortName: "TTC Jashore", nameBn: "সরকারি টিচার্স ট্রেনিং কলেজ, যশোর", city: "Jashore", established: 1963, slug: "ttc-jashore", logo: "", hasLogo: false },
     { id: "barishal", name: "Govt. Teachers' Training College, Barishal", shortName: "TTC Barishal", nameBn: "সরকারি টিচার্স ট্রেনিং কলেজ, বরিশাল", city: "Barishal", established: 1999, slug: "ttc-barishal", logo: "", hasLogo: false },
     { id: "faridpur", name: "Govt. Teachers' Training College, Faridpur", shortName: "TTC Faridpur", nameBn: "সরকারি টিচার্স ট্রেনিং কলেজ, ফরিদপুর", city: "Faridpur", established: 2005, slug: "ttc-faridpur", logo: "", hasLogo: false },
     { id: "pabna", name: "Govt. B.Ed College, Pabna", shortName: "B.Ed Pabna", nameBn: "সরকারি বি.এড কলেজ, পাবনা", city: "Pabna", established: 1998, slug: "bed-pabna", logo: "", hasLogo: false },
-    { id: "bogura", name: "Govt. B.Ed College, Bogura", shortName: "B.Ed Bogura", nameBn: "সরকারি বি.এড কলেজ, বগুড়া", city: "Bogura", established: 2000, slug: "bed-bogura", logo: "", hasLogo: false },
 ];
 
 const collegeProfiles: any = {

@@ -23,12 +23,12 @@ const shortNames: Record<string, string> = {
     "chattagram": "TTC Chattagram",
     "rangpur": "TTC Rangpur",
     "khulna": "TTC Khulna",
-    "mymensingh": "TTC Mymensingh",
+    "mymensingh": "Women's TTC Mymensingh",
+    "mymensingh-general": "TTC Mymensingh",
     "jashore": "TTC Jashore",
     "barishal": "TTC Barishal",
     "faridpur": "TTC Faridpur",
     "pabna": "B.Ed Pabna",
-    "bogura": "B.Ed Bogura",
 };
 
 async function fixShortNames() {

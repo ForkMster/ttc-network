@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { updateSiteSettings, getSiteSettingsDoc } from "@/lib/firestore";
-import { uploadToCloudinary } from "@/lib/storage";
+import { uploadToCloudinary, deleteFromCloudinary } from "@/lib/storage";
 
 /* ═══════════════════════════════════════════════════
    DEFAULTS
@@ -130,11 +130,20 @@ export default function SiteSettingsTab({ profile }: { profile: UserProfile }) {
             // Upload new logo if selected
             if (logoFile) {
                 setUploading(true);
+                if (logoUrl && logoUrl !== DEFAULTS.logoUrl && !logoUrl.startsWith('/')) {
+                    try {
+                        await deleteFromCloudinary(logoUrl);
+                    } catch (e) {
+                        console.warn("Failed to delete old logo", e);
+                    }
+                }
+
+                const uniqueId = `site-logo-${Date.now()}`;
                 const result = await uploadToCloudinary(
                     logoFile,
                     "logos",
                     "site-branding",
-                    "site-logo"
+                    uniqueId
                 );
                 finalLogoUrl = result.url;
                 setUploading(false);

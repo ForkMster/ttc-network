@@ -373,8 +373,8 @@ const collegesData: CollegeProfile[] = [
     },
     {
         id: "mymensingh",
-        name: "Govt. Teachers' Training College (Women), Mymensingh",
-        shortName: "TTC Mymensingh",
+        name: "Govt. Women's Teachers' Training College, Mymensingh",
+        shortName: "Women's TTC Mymensingh",
         division: "Mymensingh",
         logo: "",
         hasLogo: false,
@@ -397,6 +397,33 @@ const collegesData: CollegeProfile[] = [
         lastUpdatedBy: "Admin",
         lastUpdatedDate: "March 10, 2026",
         color: "#8B5CF6",
+    },
+    {
+        id: "mymensingh-general",
+        name: "Govt. Teachers' Training College, Mymensingh",
+        shortName: "TTC Mymensingh",
+        division: "Mymensingh",
+        logo: "",
+        hasLogo: false,
+        location: "Mymensingh, Bangladesh",
+        founded: 1948,
+        principal: {
+            name: "Principal",
+            contact: "",
+        },
+        teachers: 30,
+        students: 500,
+        classrooms: 20,
+        hostel: true,
+        description:
+            "A premier teacher training institution in Mymensingh, dedicated to fostering pedagogical excellence and developing skilled educators for the nation.",
+        achievements: [],
+        faculty: [],
+        clubs: [],
+        social: { facebook: "" },
+        lastUpdatedBy: "Admin",
+        lastUpdatedDate: "March 19, 2026",
+        color: "#1a5276",
     },
     {
         id: "jashore",
@@ -506,33 +533,7 @@ const collegesData: CollegeProfile[] = [
         lastUpdatedDate: "March 10, 2026",
         color: "#7C3AED",
     },
-    {
-        id: "bogura",
-        name: "Govt. B.Ed College, Bogura",
-        shortName: "B.Ed Bogura",
-        division: "Rajshahi",
-        logo: "",
-        hasLogo: false,
-        location: "Bogura, Bangladesh",
-        founded: 2000,
-        principal: {
-            name: "Prof. Md. Khairul Kabir",
-            contact: "+880-51-78443",
-        },
-        teachers: 21,
-        students: 320,
-        classrooms: 13,
-        hostel: false,
-        description:
-            "A B.Ed focused institution in northern Bangladesh. Building a foundation of excellence for the region's teacher training community.",
-        achievements: ["Northern Region Educational Merit 2024"],
-        faculty: [],
-        clubs: [],
-        social: { facebook: "https://facebook.com/bedbogura" },
-        lastUpdatedBy: "Admin",
-        lastUpdatedDate: "March 10, 2026",
-        color: "#059669",
-    },
+
 ];
 
 /* ─── UI Components ─── */
@@ -850,7 +851,7 @@ function CollegeInfoInner() {
                                             <h3 className={`text-sm font-black truncate ${selectedCollege.id === college.id ? "text-primary" : "text-gray-900 dark:text-gray-100"}`}>
                                                 {college.shortName}
                                             </h3>
-                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{college.division}</p>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{college.location.split(',')[0].trim()}</p>
                                         </div>
 
                                         {selectedCollege.id === college.id && (
